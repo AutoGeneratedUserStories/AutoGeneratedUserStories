@@ -21,7 +21,7 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState>{
         return (        
         <div className="card" style={{width: "18rem"}}>
             <div className="card-body">
-                <h5 className="card-title">{{this.state.story.name}}</h5>
+                <h5 className="card-title">Story name</h5>
                     <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                 <a href="#" className="btn btn-primary">Awesome</a>
             </div>
