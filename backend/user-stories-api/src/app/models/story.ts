@@ -12,3 +12,6 @@ class Story {
     }
 
 }
+
+
+export { Story }
