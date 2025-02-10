@@ -3,7 +3,7 @@
 import { streamObject } from 'ai';
 import { google } from "@ai-sdk/google"
 import { createStreamableValue } from 'ai/rsc';
-import { z } from 'zod';
+import { storySchema } from './schema';
 
 export async function generate(input: string) {
   'use server';
@@ -17,15 +17,7 @@ export async function generate(input: string) {
     "Your job is to take a given project description and generate every necessary user story " +
     "to take the project to completion. Also generate acceptance criteria for each user story as necessary",
       prompt: input,
-      schema: z.object({
-        stories: z.array(
-          z.object({
-            name: z.string().describe('Name of the user story.'),
-            description: z.string().describe('Description of the user story.'),
-            acceptance_criteria: z.string(),
-          }),
-        ),
-      }),
+      schema: storySchema
     });
     
     for await (const partialObject of partialObjectStream) {
