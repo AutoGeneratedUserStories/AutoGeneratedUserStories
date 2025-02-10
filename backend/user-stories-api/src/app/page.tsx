@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { generate } from './actions';
 import { readStreamableValue } from 'ai/rsc';
 
+
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   // return (
