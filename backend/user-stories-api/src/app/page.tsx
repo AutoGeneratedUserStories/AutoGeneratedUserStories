@@ -1,63 +1,59 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState } from 'react';
-import { generate } from './actions';
+import { useState, useCallback } from 'react';
+import { generate } from './lib/actions';
 import { readStreamableValue } from 'ai/rsc';
 
-
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
-  // return (
-  //   <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-  //     {messages.map(m => (
-  //       <div key={m.id} className="whitespace-pre-wrap">
-  //         {m.role === 'user' ? 'User: ' : 'AI: '}
-  //         {m.content}
-  //       </div>
-  //     ))}
+  const { input, handleInputChange } = useChat();
+  const [generation, setGeneration] = useState('');
 
-  //     <form onSubmit={handleSubmit}>
-  //       <input
-  //         className="fixed dark:bg-zinc-900 bottom-0 w-full max-w-md p-2 mb-8 border border-zinc-300 dark:border-zinc-800 rounded shadow-xl"
-  //         value={input}
-  //         placeholder="Say something..."
-  //         onChange={handleInputChange}
-  //       />
-  //     </form>
-  //   </div>
-  // );
+  const handleAsk = useCallback(async () => {
+    try {
+      const { object } = await generate(input);
+      // Stream the partial responses
+      for await (const partial of readStreamableValue(object)) {
+        if (partial?.stories) {
+          setGeneration(JSON.stringify(partial.stories, null, 2));
+        }
+      }
+    } catch (error) {
+      console.error('Error during generation:', error);
+    }
+  }, [input]);
 
-  const [generation, setGeneration] = useState<string>('');
+  const handleSubmit = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault(); // Prevent the page from reloading
+      handleAsk();
+    },
+    [handleAsk]
+  );
 
   return (
-    <div>
+    <div className="min-h-screen relative">
       <pre className="p-4">{generation}</pre>
-      <div className="fixed bottom-0 inset-x-0 p-4 flex justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="fixed bottom-0 inset-x-0 p-4 flex justify-center"
+      >
         <div className="flex w-full max-w-md">
           <input
+            type="text"
             className="flex-1 dark:bg-zinc-900 p-2 border border-zinc-300 dark:border-zinc-800 rounded-l shadow outline-none"
             value={input}
-            placeholder="Say something..."
             onChange={handleInputChange}
+            placeholder="Say something..."
           />
           <button
-            onClick={async () => {
-              const { object } = await generate(input);
-              
-              for await (const partialObject of readStreamableValue(object)) {
-                if (partialObject) {
-                  setGeneration(JSON.stringify(partialObject.stories, null, 2));
-                }
-              }
-            }}
+            type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-r shadow hover:bg-blue-700 transition-colors"
           >
             Ask
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
-  
 }
