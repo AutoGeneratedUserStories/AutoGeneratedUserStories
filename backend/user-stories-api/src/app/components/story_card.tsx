@@ -1,32 +1,34 @@
-import 'bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Correct import for Bootstrap CSS
 import { Story } from '../models/story';
 import React from 'react';
 
-
-
-interface StoryCardProps{
-
-}
-
-interface StoryCardState{
+interface StoryCardProps {
     story: Story;
 }
 
-class StoryCard extends React.Component<StoryCardProps, StoryCardState>{
-    constructor(state: StoryCardState){
-        super(state);
-    }
-
+class StoryCard extends React.Component<StoryCardProps> {
     render() {
-        return (        
-        <div className="card" style={{width: "18rem"}}>
-            <div className="card-body">
-                <h5 className="card-title">Story name</h5>
-                    <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" className="btn btn-primary">Awesome</a>
+        const { story } = this.props;
+
+        return (
+            <div className="card" style={{ width: "18rem" }}>
+                <div className="card-body">
+                    <h5 className="card-title">{story.name}</h5>
+                    <p className="card-text">{story.description}</p>
+                    {story.acceptanceCriteria.length > 0 && ( 
+                        <div>
+                            <h6>Acceptance Criteria:</h6>
+                            <ul className="list-unstyled">
+                                {story.acceptanceCriteria.map((criteria, index) => (
+                                    <li key={index}>{criteria}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-        )
+        );
     }
 }
 
+export default StoryCard;
