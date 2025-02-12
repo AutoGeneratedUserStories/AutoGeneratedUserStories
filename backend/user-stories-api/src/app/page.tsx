@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import { generate } from "./lib/actions";
 import { readStreamableValue } from "ai/rsc";
 import { Story } from "./models/story";
-import Container from "./components/container";
+import Container from "./components/Container";
 
 export default function Chat() {
   const { input, handleInputChange } = useChat();
@@ -18,8 +18,7 @@ export default function Chat() {
       for await (const partial of readStreamableValue(object)) {
         if (partial?.stories) {
           const newStories = partial.stories.map(
-            (story: any) =>
-              new Story(story.name, story.description, story.acceptanceCriteria)
+            (story: Story) => new Story(story.name, story.description, story.acceptanceCriteria)
           );
           setStories(newStories);
         }
@@ -39,7 +38,7 @@ export default function Chat() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="flex justify-center p-4 overflow-y-auto h-[38rem]">
+      <div className="flex h-[38rem] justify-center overflow-y-auto p-4">
         <Container stories={stories} />
       </div>
       <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
@@ -50,7 +49,7 @@ export default function Chat() {
             value={input}
             onChange={handleInputChange}
             placeholder="Say something..."
-          />  
+          />
           <button
             type="submit"
             className="rounded-r bg-blue-600 px-4 py-2 text-white shadow transition-colors hover:bg-blue-700"
