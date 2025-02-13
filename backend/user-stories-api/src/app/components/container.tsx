@@ -1,5 +1,5 @@
 import React from 'react';
-import StoryCard from './story_card'; 
+import StoryCard from './StoryCard'; 
 import { Story } from '../models/story'; 
 import { useChat } from "ai/react";
 import { useState, useCallback, useEffect } from "react";

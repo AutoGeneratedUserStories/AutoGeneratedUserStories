@@ -11,7 +11,12 @@ class StoryCard extends React.Component<StoryCardProps> {
         const { story } = this.props;
 
         return (
-            <div className="card" style={{ width: "95%", maxWidth: "56rem", padding: "0.5rem", margin: "0.5rem", boxShadow: "0.20rem 0.15rem 0.10rem #888888" }}>
+            <div className="card" style={{ 
+                width: "95%", 
+                maxWidth: "56rem", 
+                padding: "0.5rem", 
+                margin: "0.5rem", 
+                boxShadow: "0.20rem 0.15rem 0.10rem #888888" }}>
                 <div className="card-body">
                     <h5 className="card-title">{story.name}</h5>
                     <p className="card-text">{story.description}</p>
