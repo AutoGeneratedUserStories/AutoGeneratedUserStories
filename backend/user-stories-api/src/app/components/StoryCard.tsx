@@ -23,7 +23,9 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
   };
   handleSave = (updatedStory: Story) => {
     console.log("Updated story:", updatedStory);
-    // TODO
+    this.props.story.acceptanceCriteria = updatedStory.acceptanceCriteria;
+    this.props.story.description = updatedStory.description;
+    this.props.story.name = updatedStory.name;
     this.closeModal();
   };
   render() {
