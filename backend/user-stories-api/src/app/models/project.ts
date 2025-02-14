@@ -42,5 +42,6 @@ class Project {
   id: string;
 }
 
-const ProjectModel = getModelForClass(Project);
+// If we hot reload, it already exists
+const ProjectModel = mongoose.models.Project || getModelForClass(Project);
 export { ProjectModel, Project };

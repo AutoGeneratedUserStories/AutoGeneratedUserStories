@@ -46,7 +46,7 @@ export async function saveProject(data: { name: string; description?: string; st
 
     // Save the project to the database
     const savedProject = await project.save();
-    return savedProject; // We might not need to return this
+    // return savedProject; // Maybe something should be returned, but not this
   } catch (error) {
     return { error };
   }

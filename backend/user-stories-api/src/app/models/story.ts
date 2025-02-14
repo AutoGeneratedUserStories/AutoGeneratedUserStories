@@ -48,5 +48,5 @@ class Story {
   id: string;
 }
 
-const StoryModel = getModelForClass(Story);
+const StoryModel = mongoose.models.Story || getModelForClass(Story);
 export { StoryModel, Story };
