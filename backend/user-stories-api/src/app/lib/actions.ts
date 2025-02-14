@@ -4,6 +4,9 @@ import { streamObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { createStreamableValue } from "ai/rsc";
 import { storySchema } from "./schema";
+import { Story } from "../models/story"; // Import the Story model
+import connectDB from "./connectDB";
+import { ProjectModel } from "../models/project";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -27,4 +30,24 @@ export async function generate(input: string) {
   })();
 
   return { object: stream.value };
+}
+
+export async function saveProject(data: { name: string; description?: string; stories: Story[] }) {
+  try {
+    await connectDB();
+
+    const { name, description, stories } = data;
+
+    const project = new ProjectModel({
+      name,
+      description,
+      stories,
+    });
+
+    // Save the project to the database
+    const savedProject = await project.save();
+    return savedProject; // We might not need to return this
+  } catch (error) {
+    return { error };
+  }
 }

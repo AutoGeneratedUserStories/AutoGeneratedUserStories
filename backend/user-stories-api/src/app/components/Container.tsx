@@ -1,57 +1,69 @@
-import React from 'react';
-import StoryCard from './StoryCard'; 
-import { Story } from '../models/story'; 
+// components/Container.tsx
+import React, { useState, useCallback, useEffect } from "react";
+import StoryCard from "./StoryCard";
 import { useChat } from "ai/react";
-import { useState, useCallback, useEffect } from "react";
 import { readStreamableValue } from "ai/rsc";
-import { generate } from "../lib/actions";
+import { generate, saveProject } from "../lib/actions";
+import { Story } from "../models/story";
 
 interface ContainerProps {
-    stories: Story[]; 
+  stories: Story[];
 }
 
-export default function Container(props: ContainerProps) {
-    const { input, handleInputChange } = useChat();
-    const [stories, setStories] = useState<Story[]>([]);
+export default function Container({ stories: initialStories }: ContainerProps) {
+  const { input, handleInputChange } = useChat();
+  const [stories, setStories] = useState<Story[]>(initialStories);
 
-    const handleAsk = useCallback(async () => {
-        try {
-            const { object } = await generate(input);
-            // Stream the partial responses
-            for await (const partial of readStreamableValue(object)) {
-            if (partial?.stories) {
-                const newStories = partial.stories.map(
-                (story: any) =>
-                    new Story(story.name, story.description, story.acceptanceCriteria)
-                );
-                setStories(newStories);
-            }
-            }
-        } catch (error) {
-            console.error("Error during generation:", error);
+  const handleAsk = useCallback(async () => {
+    try {
+      const { object } = await generate(input);
+      let updatedStories: Story[] = [];
+
+      // Stream the partial responses
+      for await (const partial of readStreamableValue(object)) {
+        if (partial?.stories) {
+          updatedStories = partial.stories.map((story: Story) => ({
+            name: story.name,
+            description: story.description,
+            acceptanceCriteria: story.acceptanceCriteria ?? [],
+          }));
+          setStories(updatedStories);
         }
-        }, [input]);
-        
-        const handleSubmit = useCallback(
-        (event: React.FormEvent) => {
-            event.preventDefault(); // Prevent the page from reloading
-            handleAsk();
-        },
-        [handleAsk]
-    );
+      }
 
-    //Initialize stories list when page loads
-    useEffect(() => {
-        setStories(props.stories);
-    }, [props.stories]);
-    
-    return (
-        
-        <div className="grid">
-            {stories.map((story, index) => (
-                <StoryCard key={index} story={story} /> 
-            ))}
-        <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
+      // TODO: Maybe we shouldn't save by default and the user should be asked
+      // Users will be able to customize their name and description.
+      // It also will need to be associated with a user
+      // It very likely might break if two people have the same project name
+      await saveProject({
+        name: "My Awesome Project",
+        description: "Project generated from stories",
+        stories: updatedStories,
+      });
+    } catch (error) {
+      console.error("Error during generation:", error);
+    }
+  }, [input]);
+
+  const handleSubmit = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault(); // Prevent the page from reloading
+      handleAsk();
+    },
+    [handleAsk]
+  );
+
+  // Initialize stories list when the page loads
+  useEffect(() => {
+    setStories(initialStories);
+  }, [initialStories]);
+
+  return (
+    <div className="grid">
+      {stories.map((story, index) => (
+        <StoryCard key={index} story={story} />
+      ))}
+      <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
         <div className="flex w-full max-w-md">
           <input
             type="text"
@@ -59,7 +71,7 @@ export default function Container(props: ContainerProps) {
             value={input}
             onChange={handleInputChange}
             placeholder="Describe your project..."
-          />  
+          />
           <button
             type="submit"
             className="rounded-r bg-blue-600 px-4 py-2 text-white shadow transition-colors hover:bg-blue-700"
@@ -68,6 +80,6 @@ export default function Container(props: ContainerProps) {
           </button>
         </div>
       </form>
-      </div>
-    );
-};
+    </div>
+  );
+}
