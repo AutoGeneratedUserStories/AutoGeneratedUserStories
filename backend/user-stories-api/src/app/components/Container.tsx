@@ -62,7 +62,6 @@ export default function Container({ stories: initialStories }: ContainerProps) {
     return (
         <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] grid-rows-1">
             <div className="col">
-                {/* <ProjectBar></ProjectBar> */}
             </div>
             <div className="col">
                 {stories.map((story, index) => (
