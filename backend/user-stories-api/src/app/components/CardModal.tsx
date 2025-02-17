@@ -11,6 +11,7 @@ interface CardModalProps {
 export default function CardModal({ story, onClose, onSave }: CardModalProps) {
   const [editedName, setEditedName] = useState(story.name);
   const [editedDescription, setEditedDescription] = useState(story.description);
+  const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState(story.acceptanceCriteria);
 
   const handleSave = () => {
     const updatedStory: Story = {
@@ -58,6 +59,13 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                   value={editedDescription}
                   onChange={(e) => setEditedDescription(e.target.value)}
                 ></textarea>
+              </div>
+              {/* Editable field for each acceptance criteria */}
+              <div className="form-group">
+                <label htmlFor="acceptanceCriteria"></label>
+                {story.acceptanceCriteria.map((value) => {
+                  return <p>{value}</p>
+                })}
               </div>
             </form>
           </div>
