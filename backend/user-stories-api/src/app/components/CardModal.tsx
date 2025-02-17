@@ -63,7 +63,7 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
               {/* Editable field for each acceptance criteria */}
               <div className="form-group">
                 <label htmlFor="acceptanceCriteria"></label>
-                {story.acceptanceCriteria.map((value) => {
+                {story.acceptanceCriteria?.map((value) => {
                   return <p>{value}</p>
                 })}
               </div>
