@@ -20,7 +20,8 @@ The users can also export these stories to another tool such as Jira, Trello or 
 
 ### Prerequisites
 [Node.js](https://nodejs.org/)   
-[Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
+[Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)  
+[MongoDB](https://www.mongodb.com/docs/manual/installation/)
 
 ### Local Setup
 
@@ -43,8 +44,8 @@ yarn
 
 4. Setup your `env` file
 - Duplicate `.env.example` to `.env.local`
-- Obtain a [Google  Gemini API Key](https://aistudio.google.com/app/apikey)
-- Put the key after `GOOGLE_GENERATIVE_AI_API_KEY=` in `.env.local`
+- Put your [Google  Gemini API Key](https://aistudio.google.com/app/apikey) after `GOOGLE_GENERATIVE_AI_API_KEY=` in `.env.local`
+- Put your [MongoDB Connection String](https://www.mongodb.com/docs/manual/reference/connection-string/) after `MONGODB_URI=` in `.env.local`
 
 5. Start the development server
 ```sh
