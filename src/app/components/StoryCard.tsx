@@ -4,6 +4,7 @@ import React from "react";
 import CardModal from "./CardModal";
 interface StoryCardProps {
   story: Story;
+  onDragStart: (e: React.DragEvent, storyId: string) => void;
 }
 interface StoryCardState {
   showModal: boolean;
@@ -29,14 +30,26 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
     this.closeModal();
   };
   render() {
-    const { story } = this.props;
+    const { story, onDragStart } = this.props;
     const { showModal } = this.state;
+  
     return (
-      <div>
+      <div
+        id={`story-${story.name}`}
+        draggable
+        onDragStart={(e) => onDragStart(e, `story-${story.name}`)} 
+        style={{
+          marginBottom: "10px",
+          display: "flex",        
+          justifyContent: "center",
+        }}
+      >
         <div
           className="card"
           style={{
-            width: "56rem",
+            display: "flex",
+            flexDirection: "column",
+            maxWidth: "50%", 
             padding: "0.5rem",
             margin: "0.5rem",
             boxShadow: "0.20rem 0.15rem 0.10rem #888888",
@@ -51,6 +64,7 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
             <p className="card-text">{story.description}</p>
           </div>
         </div>
+  
         {showModal && (
           <CardModal story={story} onClose={this.closeModal} onSave={this.handleSave} />
         )}

@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useCallback, useEffect } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
@@ -6,13 +7,15 @@ import { generate, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 
-interface ContainerProps {
+interface ProjectViewProps {
     stories: Story[];
 }
 
-export default function Container({ stories: initialStories }: ContainerProps) {
+export default function ProjectView({ stories: initialStories }: ProjectViewProps) {
     const { input, handleInputChange } = useChat();
     const [stories, setStories] = useState<Story[]>(initialStories);
+    const [draggedStoryId, setDraggedStoryId] = useState<string | null>(null);
+
     const handleAsk = useCallback(async () => {
         try {
             const { object } = await generate(input);
@@ -57,13 +60,42 @@ export default function Container({ stories: initialStories }: ContainerProps) {
         setStories(initialStories);
     }, [initialStories]);
 
+    const onDragStart = (e: React.DragEvent, storyId: string) => {
+        setDraggedStoryId(storyId); // Set the story being dragged
+    };
+
+    const onDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Prevent default to allow drop
+    };
+
+    const onDrop = (e: React.DragEvent, targetIndex: number) => {
+        e.preventDefault();
+        if (draggedStoryId) {
+            const draggedIndex = stories.findIndex((story) => `story-${story.name}` === draggedStoryId);
+            const updatedStories = [...stories];
+            const [draggedStory] = updatedStories.splice(draggedIndex, 1); // Remove dragged story
+            updatedStories.splice(targetIndex, 0, draggedStory); // Insert the dragged story in the target position
+            setStories(updatedStories);
+        }
+    };
+
     return (
         <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] grid-rows-1">
             <div className="col">
             </div>
             <div className="col">
                 {stories.map((story, index) => (
-                    <StoryCard key={index} story={story} />
+                    <div
+                    key={index}
+                    onDragOver={(e) => onDragOver(e)}
+                    onDrop={(e) => onDrop(e, index)}
+                >
+                    <StoryCard
+                        key={story.name}
+                        story={story}
+                        onDragStart={onDragStart}
+                    />
+                </div>
                 ))}
                 <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
                     <div className="flex w-full max-w-md">

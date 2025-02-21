@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import Container from "./components/Container";
+import ProjectView from "./components/ProjectView";
 import ProjectBar from "./components/ProjectBar";
 import { validateRequest } from "./lib/auth";
 
@@ -19,7 +19,7 @@ export default async function Chat() {
         <ProjectBar username={user.username}></ProjectBar>
       </div>
       <div className="flex justify-center p-4 overflow-y-auto h-[38rem]">
-        <Container stories={[]} />
+        <ProjectView stories={[]} />
       </div>
     </div>
   );
