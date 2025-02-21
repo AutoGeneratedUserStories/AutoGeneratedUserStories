@@ -1,6 +1,6 @@
 //models/session.ts
 import mongoose from 'mongoose';
-
+import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
 interface Session {
   user_id: string;
   expires_at: Date;

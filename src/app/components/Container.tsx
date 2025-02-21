@@ -1,11 +1,10 @@
-// components/Container.tsx
+"use client"
 import React, { useState, useCallback, useEffect } from "react";
 import StoryCard from "./StoryCard";
-import { useChat } from "ai/react";
 import { readStreamableValue } from "ai/rsc";
 import { generate, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
-import ProjectBar from "./ProjectBar";
+import { useChat } from "@ai-sdk/react";
 
 interface ContainerProps {
     stories: Story[];
@@ -14,7 +13,6 @@ interface ContainerProps {
 export default function Container({ stories: initialStories }: ContainerProps) {
     const { input, handleInputChange } = useChat();
     const [stories, setStories] = useState<Story[]>(initialStories);
-
     const handleAsk = useCallback(async () => {
         try {
             const { object } = await generate(input);

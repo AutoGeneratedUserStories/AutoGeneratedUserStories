@@ -1,14 +1,17 @@
+"use client"
+
 import 'bootstrap/dist/css/bootstrap.min.css'; // Correct import for Bootstrap CSS
-import { Project } from '../models/project';
 import React, { ReactNode, useState } from 'react';
+import { logout } from '../lib/actions';
 
-interface ProjectProps {
-
+interface ProjectBarProps {
+    username: string;
 }
 
-function DropdownElement({ name, icon }: { name: string, icon: ReactNode }) {
+function DropdownElement({ name, icon , onClick}: { name: string, icon: ReactNode, onClick?: () => void }) {
     return (
         <div role="button"
+            onClick={onClick}
             className="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-gray-200 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
             <div className="mr-4 place-items-center">
                 {icon}
@@ -65,10 +68,8 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
     )
 }
 
-class ProjectBar extends React.Component<ProjectProps> {
-
-    render() {
-        return (
+export default function ProjectBar({ username }: ProjectBarProps) {
+            return (
             <div
                 className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border p-4 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5">
                 <div className="p-4 mb-2">
@@ -77,7 +78,7 @@ class ProjectBar extends React.Component<ProjectProps> {
                     </h5>
                 </div>
                 <DropdownContainer name="Dashboard">
-                    <DropdownElement name="Profile" icon={
+                    <DropdownElement name={username} icon={
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
                             className="w-5 h-5">
                             <path fillRule="evenodd"
@@ -93,18 +94,15 @@ class ProjectBar extends React.Component<ProjectProps> {
                                 clipRule="evenodd"></path>
                         </svg>
                     } />
-                    <DropdownElement name="Log out" icon={
+                    <DropdownElement name="Sign out" icon={
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
                             className="w-5 h-5">
                             <path fillRule="evenodd"
                                 d="M12 2.25a.75.75 0 01.75.75v9a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM6.166 5.106a.75.75 0 010 1.06 8.25 8.25 0 1011.668 0 .75.75 0 111.06-1.06c3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788a.75.75 0 011.06 0z"
                                 clipRule="evenodd"></path>
                         </svg>
-                    } />
+                    } onClick={logout}/>
                 </DropdownContainer>
             </div>
         )
-    }
 }
-
-export default ProjectBar;

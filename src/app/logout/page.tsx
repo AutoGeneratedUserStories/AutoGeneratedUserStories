@@ -1,6 +1,8 @@
-import { lucia, validateRequest } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { ActionResult } from 'next/dist/server/app-render/types';
+import Form from 'next/form';
+import { lucia, validateRequest } from '../lib/auth';
  
 export default async function Logout() {
   return (
@@ -22,7 +24,7 @@ async function logout(): Promise<ActionResult> {
   await lucia.invalidateSession(session.id);
  
   const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
+  (await cookies()).set(
     sessionCookie.name,
     sessionCookie.value,
     sessionCookie.attributes

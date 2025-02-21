@@ -7,6 +7,10 @@ import { storySchema } from "./schema";
 import { Story } from "../models/story"; // Import the Story model
 import connectDB from "./connectDB";
 import { ProjectModel } from "../models/project";
+import { ActionResult } from "next/dist/server/app-render/types";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { validateRequest, lucia } from "./auth";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -50,4 +54,24 @@ export async function saveProject(data: { name: string; description?: string; st
   } catch (error) {
     return { error };
   }
+}
+
+export async function logout(): Promise<ActionResult> {
+  'use server';
+  const { session } = await validateRequest();
+  if (!session) {
+    return {
+      error: 'Unauthorized',
+    };
+  }
+ 
+  await lucia.invalidateSession(session.id);
+ 
+  const sessionCookie = lucia.createBlankSessionCookie();
+  (await cookies()).set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
+  return redirect('/login');
 }
