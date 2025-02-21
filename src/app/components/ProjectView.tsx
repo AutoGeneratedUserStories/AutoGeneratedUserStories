@@ -1,4 +1,4 @@
-// components/Container.tsx
+// components/ProjectView.tsx
 import React, { useState, useCallback, useEffect } from "react";
 import StoryCard from "./StoryCard";
 import { useChat } from "ai/react";
@@ -7,11 +7,11 @@ import { generate, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import ProjectBar from "./ProjectBar";
 
-interface ContainerProps {
+interface ProjectViewProps {
     stories: Story[];
 }
 
-export default function Container({ stories: initialStories }: ContainerProps) {
+export default function ProjectView({ stories: initialStories }: ProjectViewProps) {
     const { input, handleInputChange } = useChat();
     const [stories, setStories] = useState<Story[]>(initialStories);
     const [draggedStoryId, setDraggedStoryId] = useState<string | null>(null);

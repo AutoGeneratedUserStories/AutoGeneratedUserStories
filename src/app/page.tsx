@@ -1,6 +1,6 @@
 "use client";
 
-import Container from "./components/Container";
+import ProjectView from "./components/ProjectView";
 import ProjectBar from "./components/ProjectBar";
 
 export default function Chat() {
@@ -13,7 +13,7 @@ export default function Chat() {
         <ProjectBar></ProjectBar>
       </div>
       <div className="flex justify-center p-4 overflow-y-auto h-[38rem]">
-        <Container stories={[]} />
+        <ProjectView stories={[]} />
       </div>
     </div>
   );
