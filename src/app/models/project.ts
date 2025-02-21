@@ -20,7 +20,6 @@ import { getModelForClass, index, ModelOptions, post, prop, Severity } from "@ty
 @ModelOptions({
   schemaOptions: {
     timestamps: true,
-    collection: "projects",
   },
   options: {
     allowMixed: Severity.ALLOW,

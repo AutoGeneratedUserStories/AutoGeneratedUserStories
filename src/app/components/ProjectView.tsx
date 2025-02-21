@@ -40,7 +40,7 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
             await saveProject({
                 name: "My Awesome Project",
                 description: "Project generated from stories",
-                stories: updatedStories,
+                stories: updatedStories
             });
         } catch (error) {
             console.error("Error during generation:", error);

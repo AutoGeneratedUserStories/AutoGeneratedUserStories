@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full bg-white shadow-md rounded px-8 py-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        {searchParams.error && (
+        {(await searchParams).error && (
           <p className="mb-4 text-red-500 text-sm">{searchParams.error}</p>
         )}
         <Form action={login} className="space-y-4">

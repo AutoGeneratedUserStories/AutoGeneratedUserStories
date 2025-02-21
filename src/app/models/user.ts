@@ -37,10 +37,13 @@ import { Project } from "./project";
 class User {
   @prop({ required: true,})
   password: string;
+
   @prop({ required: true, unique: true })
   username: string;
-  @prop({ required: false})
+
+  @prop({ required: false, type: () => [Project], _id: false, default: [] })
   projects?: Project[];
+  
   _id: mongoose.Types.ObjectId | string;
   id: string;
 }

@@ -26,7 +26,6 @@ import { prop } from "@typegoose/typegoose/lib/prop";
 @ModelOptions({
   schemaOptions: {
     timestamps: true,
-    collection: "projects",
   },
   options: {
     allowMixed: Severity.ALLOW,
