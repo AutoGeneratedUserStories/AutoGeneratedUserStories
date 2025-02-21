@@ -5,7 +5,6 @@ import { google } from "@ai-sdk/google";
 import { createStreamableValue } from "ai/rsc";
 import { storySchema } from "./schema";
 import { Story } from "../models/story"; // Import the Story model
-import connectDB from "./connectDB";
 import { Project, ProjectModel } from "../models/project";
 import { ActionResult } from "next/dist/server/app-render/types";
 import { cookies } from "next/headers";
@@ -46,8 +45,6 @@ export async function saveProject(data: { name: string; description?: string; st
         error: "Unauthorized",
       };
     }
-
-    await connectDB();
 
     const { name, description, stories } = data;
   

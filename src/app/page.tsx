@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 import ProjectView from "./components/ProjectView";
 import ProjectBar from "./components/ProjectBar";
 import { validateRequest } from "./lib/auth";
-import connectDB from "./lib/connectDB";
-import { ProjectModel } from "./models/project";
 import { User, UserModel } from "./models/user";
 import { Story } from "./models/story";
 
@@ -16,7 +14,6 @@ export default async function Chat() {
       redirect("/login");
   }
 
-  await connectDB();
   const user2 : User | null = await UserModel.findOne({ username: user.username });
   const stories: Story[] = user2?.projects?.at(0)?.stories ?? [];
 

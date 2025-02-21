@@ -33,10 +33,9 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
                 }
             }
 
-            // TODO: Maybe we shouldn't save by default and the user should be asked
+            // TODO: Shouldn't save by default and the user should be asked
             // Users will be able to customize their name and description.
-            // It also will need to be associated with a user
-            // It very likely might break if two people have the same project name
+            // 
             await saveProject({
                 name: "My Awesome Project",
                 description: "Project generated from stories",

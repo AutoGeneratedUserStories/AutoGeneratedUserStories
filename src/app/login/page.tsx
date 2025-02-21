@@ -6,12 +6,13 @@ import { cookies } from 'next/headers';
 import Form from 'next/form';
 import Link from 'next/link';
 import { validateRequest, lucia } from '../lib/auth';
-import connectDB from '../lib/connectDB';
 import { UserModel } from '../models/user';
 import { loginSchema } from '../lib/schema';
 
 export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
   const { user } = await validateRequest();
+  const { error } = await searchParams || {};
+  
   if (user) {
     return redirect('/');
   }
@@ -20,8 +21,8 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full bg-white shadow-md rounded px-8 py-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        {(await searchParams).error && (
-          <p className="mb-4 text-red-500 text-sm">{searchParams.error}</p>
+        {error && (
+          <p className="mb-4 text-red-500 text-sm">{error}</p>
         )}
         <Form action={login} className="space-y-4">
           <div>
@@ -52,7 +53,7 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
           </button>
         </Form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-blue-500 hover:underline">
             Sign up here
           </Link>
@@ -78,7 +79,6 @@ async function login(formData: FormData) {
     return redirect('/login?error=' + encodeURIComponent(errorMsg));
   }
 
-  await connectDB();
   const existingUser = await UserModel.findOne({ username: data.username });
   
   // If user doesn't exist, return an error

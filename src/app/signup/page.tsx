@@ -3,16 +3,15 @@
 import { Argon2id } from 'oslo/password';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import connectDB from '../lib/connectDB';
 import { validateRequest, lucia } from '../lib/auth';
 import Form from 'next/form';
 import Link from 'next/link';
 import { UserModel } from '../models/user';
-import { z } from 'zod';
 import { loginSchema } from '../lib/schema';
 
 export default async function Page({ searchParams }: { searchParams?: { error?: string } }) {
   const { user } = await validateRequest();
+  const { error } = await searchParams || {};
   if (user) {
     return redirect('/');
   }
@@ -20,8 +19,8 @@ export default async function Page({ searchParams }: { searchParams?: { error?: 
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full bg-white shadow-md rounded px-8 py-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        {(await searchParams)?.error && (
-          <p className="mb-4 text-red-500 text-sm">{searchParams.error}</p>
+        {error && (
+          <p className="mb-4 text-red-500 text-sm">{error}</p>
         )}
         <Form action={signup} className="space-y-4">
           <div>
@@ -78,8 +77,6 @@ async function signup(formData: FormData) {
     const errorMsg = result.error.errors[0].message;
     return redirect('/signup?error=' + encodeURIComponent(errorMsg));
   }
-
-  await connectDB();
 
   // Check if the username is already taken
   const existingUser = await UserModel.findOne({ username: result.data.username });
