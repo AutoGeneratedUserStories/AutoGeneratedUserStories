@@ -34,7 +34,7 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
 
     return (
         <div>
-            <div className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700">
+            <div className="flex flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700">
                 <div className="relative block w-full">
                     <div role="button"
                         className="flex items-center w-full p-0 leading-tight hover:bg-gray-200 transition-all rounded-lg outline-none bg-blue-gray-50/50 text-start text-blue-gray-700 hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">

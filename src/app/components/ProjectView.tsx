@@ -23,16 +23,6 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
     const { input, handleInputChange } = useChat();
     const [draggedStory, setDraggedStory] = useState<{ story: Story; sourceListId: string } | null>(null);
 
-    const addList = () => {
-        const newList = {
-            id: `list-${lists.length + 1}`,
-            name: `List ${lists.length + 1}`,
-            description: "",
-            stories: [],
-        };
-        setLists([...lists, newList]);
-    };
-
     const onDragStart = (story: Story, sourceListId: string) => {
         setDraggedStory({ story, sourceListId });
     };
@@ -106,19 +96,21 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
     // }, [initialStories]);
 
     return (
-        <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] grid-rows-1">
-            <div className="col">
-            </div>
-            <div className="col">
+        <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] gap-4 p-4 overflow-auto">
+              <div className="h-[38rem]">
+            {/* This ensures the ProjectBar will fill the height of the screen */}
+            <ProjectBar />
+        </div>
+            <div className="grid grid-cols-3 gap-4 p-4 w-full">
                 {lists.map((list) => (
-                    <div key={list.id} onDragOver={onDragOver} onDrop={() => onDrop(list.id)}>
+                    <div key={list.id}  className="border p-4 rounded-lg shadow-sm flex-1" onDragOver={onDragOver} onDrop={() => onDrop(list.id)}>
                         <h2 className="font-bold text-lg">{list.name}</h2>
                         {list.stories.map((story, index) => (
                             <StoryCard key={`${story.name}-${index}`} story={story} onDragStart={() => onDragStart(story, list.id)} />
                         ))}
                     </div>
                 ))}
-                <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
+                <form onSubmit={handleSubmit} className="flex justify-center p-4">
                     <div className="flex w-full max-w-md">
                         <input
                             type="text"
