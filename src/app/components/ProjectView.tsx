@@ -101,7 +101,7 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
             {/* This ensures the ProjectBar will fill the height of the screen */}
             <ProjectBar />
         </div>
-            <div className="grid grid-cols-3 gap-4 p-4 w-full">
+            <div className="grid grid-cols-3 gap-4 p-4 w-full h-full overflow-auto">
                 {lists.map((list) => (
                     <div key={list.id}  className="border p-4 rounded-lg shadow-sm flex-1" onDragOver={onDragOver} onDrop={() => onDrop(list.id)}>
                         <h2 className="font-bold text-lg">{list.name}</h2>
@@ -110,8 +110,8 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
                         ))}
                     </div>
                 ))}
-                <form onSubmit={handleSubmit} className="flex justify-center p-4">
-                    <div className="flex w-full max-w-md">
+                <form onSubmit={handleSubmit} className="flex justify-center p-4 justify-items-flexend">
+                    <div className="flex w-full max-w-md items-end">
                         <input
                             type="text"
                             className="flex-1 rounded-l border border-zinc-300 p-2"

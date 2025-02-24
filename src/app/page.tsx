@@ -12,7 +12,7 @@ export default function Chat() {
       {/* <div className="flex justify-left p-4 overflow-y-auto h-[38rem] absolute">
         <ProjectBar></ProjectBar>
       </div> */}
-      <div className="flex justify-center p-4 overflow-y-auto h-[38rem]">
+      <div className="flex justify-center p-4 overflow-y-auto h-screen pb-5">
         <ProjectView stories={[]} />
       </div>
     </div>
