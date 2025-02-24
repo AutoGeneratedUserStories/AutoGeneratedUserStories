@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
 import { generate, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
+import ProjectBar from "./ProjectBar";
+import { Project } from "../models/project";
 
 interface ProjectViewProps {
     id: string;
@@ -14,7 +16,8 @@ interface ProjectViewProps {
     stories: Story[];
 }
 
-export default function ProjectView({ stories: initialStories }: { stories: Story[] }) {
+export default function ProjectView({username, projects, stories: initialStories }: { username: string; projects: Project[]; stories: Story[] }) {
+    const [stories, setStories] = useState<Story[]>(initialStories);
     const [lists, setLists] = useState<ProjectViewProps[]>([
         { id: "todo", name: "To Do", description:" ",stories: initialStories },
         { id: "in-progress", name: "In Progress", description:" ",stories: [] },
@@ -57,8 +60,13 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
         }); 
     });
 
-    const handleLoad = (async (stories: Story[]) => {
-        setStories(stories);
+    const handleSelectProject = (async (project: Project) => {
+        setLists((prevLists) =>
+            prevLists.map((list) =>
+                list.id === "todo" ? { ...list, stories: [...project.stories] } : list
+            )
+        );
+                setStories(project.stories);
     });
 
     const handleAsk = useCallback(async () => {
@@ -83,17 +91,7 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
             );
             // TODO: Maybe we shouldn't save by default and the user should be asked
                     setStories(updatedStories);
-                }
-            }
-
-            // TODO: Shouldn't save by default and the user should be asked
-            // Users will be able to customize their name and description.
-            // 
-            // await saveProject({
-            //     name: "My Awesome Project",
-            //     description: "Project generated from stories",
-            //     stories: updatedStories
-            // });
+                
         } catch (error) {
             console.error("Error during generation:", error);
         }
@@ -107,16 +105,11 @@ export default function ProjectView({ stories: initialStories }: { stories: Stor
         [handleAsk]
     );
 
-    // Initialize stories list when the page loads
-    // useEffect(() => {
-    //     setStories(initialStories);
-    // }, [initialStories]);
-
     return (
         <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] gap-4 p-4 overflow-auto">
               <div className="h-[38rem]">
             {/* This ensures the ProjectBar will fill the height of the screen */}
-            <ProjectBar />
+            <ProjectBar username={username} projects={projects}   onSelectProject={handleSelectProject}/>
         </div>
             <div className="grid grid-cols-3 gap-4 p-4 w-full h-full overflow-auto">
                 {lists.map((list) => (

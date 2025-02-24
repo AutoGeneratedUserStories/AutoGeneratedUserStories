@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import 'bootstrap/dist/css/bootstrap.min.css'; // Correct import for Bootstrap CSS
 import React, { ReactNode, useState } from 'react';
@@ -8,6 +8,8 @@ import { Project } from '../models/project';
 interface ProjectBarProps {
     username: string;
     projects: Project[];
+    onSelectProject: (project: Project) => void;
+
 }
 
 function DropdownElement({ name, icon , onClick}: { name: string, icon: ReactNode, onClick?: () => void }) {
@@ -20,7 +22,7 @@ function DropdownElement({ name, icon , onClick}: { name: string, icon: ReactNod
             </div>
             {name}
         </div>
-    )
+    );
 }
 
 function ProjectIcon() {
@@ -31,7 +33,7 @@ function ProjectIcon() {
                 d="M2.25 2.25a.75.75 0 000 1.5H3v10.5a3 3 0 003 3h1.21l-1.172 3.513a.75.75 0 001.424.474l.329-.987h8.418l.33.987a.75.75 0 001.422-.474l-1.17-3.513H18a3 3 0 003-3V3.75h.75a.75.75 0 000-1.5H2.25zm6.04 16.5l.5-1.5h6.42l.5 1.5H8.29zm7.46-12a.75.75 0 00-1.5 0v6a.75.75 0 001.5 0v-6zm-3 2.25a.75.75 0 00-1.5 0v3.75a.75.75 0 001.5 0V9zm-3 2.25a.75.75 0 00-1.5 0v1.5a.75.75 0 001.5 0v-1.5z"
                 clipRule="evenodd"></path>
         </svg>
-    )
+    );
 }
 
 function DropdownContainer({ name, children }: { name: string, children?: ReactNode }) {
@@ -39,10 +41,10 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
 
     return (
         <div>
-            <div className="flex flex-col gap-1 font-sans text-base font-normal text-blue-gray-700">
+            <div className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700">
                 <div className="relative block w-full">
                     <div role="button"
-                        className="flex items-center w-full p-0 leading-tight hover:bg-gray-200 transition-all rounded-lg outline-none bg-blue-gray-50/50 text-start text-blue-gray-700 hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900 ">
+                        className="flex items-center w-full p-0 leading-tight hover:bg-gray-200 transition-all rounded-lg outline-none bg-blue-gray-50/50 text-start text-blue-gray-700 hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
                         <button type="button" onClick={() => {
                             setIsOpen(!isOpen);
                         }}
@@ -67,10 +69,11 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
                 {children}
             </div>
         </div>
-    )
+    );
 }
 
-export default function ProjectBar({ username, projects }: ProjectBarProps) {
+
+export default function ProjectBar({ username, projects, onSelectProject }: ProjectBarProps) {
         return (
         <div
             className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border p-4 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5">
@@ -80,11 +83,11 @@ export default function ProjectBar({ username, projects }: ProjectBarProps) {
                 </h5>
                 <div className="mt-4">
                 <DropdownContainer name="Projects">
-                    {projects.map((project) => (
+                    {projects.map((project, index) => (
                         <DropdownElement
-                            key={project.id}
+                            key={`project-${index}`}
                             name={project.name}
-                            onClick={() => onProjectSelect(project)} // NEW: pass the project back to update stories
+                            onClick={() => onSelectProject(project)}
                             icon={<ProjectIcon />}
                         />
                     ))}
@@ -118,5 +121,5 @@ export default function ProjectBar({ username, projects }: ProjectBarProps) {
                 } onClick={logout}/>
             </DropdownContainer>
         </div>
-    )
+    );
 }
