@@ -8,37 +8,19 @@ interface CardModalProps {
   onSave: (updatedStory: Story) => void;
 }
 
-interface AcceptanceCriteriaElementProps {
-  criteria: string,
-  onUpdate: (updatedCriteria: string) => void;
-}
-
-function AcceptanceCriteriaElement({ criteria, onUpdate }: AcceptanceCriteriaElementProps) {
-  const [editedCriteria, setEditedCriteria] = useState(criteria);
-  
-  const handleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const updatedCriteria = e.target.value;
-    setEditedCriteria(updatedCriteria);
-    onUpdate(updatedCriteria)
-  }
-
-  return (
-    <div>
-      <textarea
-        className="form-control"
-        id="storyCriteria"
-        rows={3}
-        value={editedCriteria}
-        onChange={handleUpdate}
-      ></textarea>
-    </div>
-  )
-}
-
 export default function CardModal({ story, onClose, onSave }: CardModalProps) {
   const [editedName, setEditedName] = useState(story.name);
   const [editedDescription, setEditedDescription] = useState(story.description);
   const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState<string[]>(story.acceptanceCriteria || []);
+
+  const handleCriteriaUpdate = (index: number, updatedCriteria: string) => {
+    const newCriteria = [...editedAcceptanceCriteria];
+    newCriteria[index] = updatedCriteria;
+    setEditedAcceptanceCriteria(newCriteria);
+  };
+
+  console.log("Story received:", story);
+  console.log("Acceptance criteria:", editedAcceptanceCriteria);
 
   const handleSave = () => {
     const updatedStory: Story = {
@@ -49,12 +31,6 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
     };
     onSave(updatedStory);
   };
-
-  const handleCriteriaUpdate = (index: number, updatedCriteria: string) => {
-    const updatedCriteriaList = [...editedAcceptanceCriteria];
-    updatedCriteriaList[index] = updatedCriteria;
-    setEditedAcceptanceCriteria(updatedCriteriaList)
-  }
 
   return (
     <div
@@ -97,15 +73,18 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
               {/* Editable field for the Acceptance Criteria */}
               <div className="form-group pb-2">
                 <label>Acceptance Criteria</label>
-                <div className="p-4 border">
+                  <div className="p-4 border">
                   {editedAcceptanceCriteria.map((criteria, index) => (
-                      <AcceptanceCriteriaElement 
-                        key={index}
-                        criteria={criteria} 
-                        onUpdate={(updatedCriteria) => {
-                          handleCriteriaUpdate(index, updatedCriteria)
-                        }}
-                      />
+                    <div key={index}>
+                      <label htmlFor={`acceptanceCriteria-${index}`}>Criteria {index + 1}</label>
+                      <textarea
+                        className="form-control"
+                        id={`acceptanceCriteria-${index}`}
+                        rows={3}
+                        value={criteria}
+                        onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
+                      ></textarea>
+                    </div>
                   ))}
                 </div>
               </div>
