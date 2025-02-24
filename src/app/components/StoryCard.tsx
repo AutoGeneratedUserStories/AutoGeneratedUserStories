@@ -2,13 +2,15 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Correct import for Bootstrap C
 import { Story } from "../models/story";
 import React from "react";
 import CardModal from "./CardModal";
+
 interface StoryCardProps {
   story: Story;
-  onDragStart: (e: React.DragEvent, storyId: string) => void;
 }
+
 interface StoryCardState {
   showModal: boolean;
 }
+
 class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
   constructor(props: StoryCardProps) {
     super(props);
@@ -16,31 +18,33 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
       showModal: false,
     };
   }
+
   openModal = () => {
     this.setState({ showModal: true });
   };
+
   closeModal = () => {
     this.setState({ showModal: false });
   };
+
   handleSave = (updatedStory: Story) => {
-    console.log("Updated story:", updatedStory); //TODO: maybe a small thing notifying the user would be cool
+    console.log("Updated story:", updatedStory); // TODO: Optionally notify the user
     this.props.story.acceptanceCriteria = updatedStory.acceptanceCriteria;
     this.props.story.description = updatedStory.description;
     this.props.story.name = updatedStory.name;
     this.closeModal();
   };
+
   render() {
-    const { story, onDragStart } = this.props;
+    const { story } = this.props;
     const { showModal } = this.state;
-  
+
     return (
       <div
         id={`story-${story.name}`}
-        draggable
-        onDragStart={(e) => onDragStart(e, `story-${story.name}`)} 
         style={{
-          marginBottom: "10px",
-          display: "flex",        
+          marginBottom: "20px",
+          display: "flex",
           justifyContent: "center",
         }}
       >
@@ -49,27 +53,39 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
           style={{
             display: "flex",
             flexDirection: "column",
-            maxWidth: "50%", 
-            padding: "0.5rem",
-            margin: "0.5rem",
+            width: "100%",
+            padding: "1rem",
+            margin: "1rem",
             boxShadow: "0.20rem 0.15rem 0.10rem #888888",
+            minWidth: "300px",
+            minHeight: "200px",
           }}
         >
           <div className="card-body">
-            <h5 className="card-title">
+            <h5
+              className="card-title"
+              style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}
+            >
               <a onClick={this.openModal} style={{ cursor: "pointer" }}>
                 {story.name}
               </a>
             </h5>
-            <p className="card-text">{story.description}</p>
+            <p className="card-text" style={{ fontSize: "1.2rem" }}>
+              {story.description}
+            </p>
           </div>
         </div>
-  
+
         {showModal && (
-          <CardModal story={story} onClose={this.closeModal} onSave={this.handleSave} />
+          <CardModal
+            story={story}
+            onClose={this.closeModal}
+            onSave={this.handleSave}
+          />
         )}
       </div>
     );
   }
 }
+
 export default StoryCard;
