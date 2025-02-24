@@ -16,6 +16,15 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
     const [stories, setStories] = useState<Story[]>(initialStories);
     const [draggedStoryId, setDraggedStoryId] = useState<string | null>(null);
 
+    const handleSave = (async () => {
+        console.log(stories);
+        await saveProject({
+            name: "star wars",
+            description: "Project generated from stories",
+            stories: stories
+        }); 
+    })
+
     const handleAsk = useCallback(async () => {
         try {
             const { object } = await generate(input);
@@ -36,11 +45,11 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
             // TODO: Shouldn't save by default and the user should be asked
             // Users will be able to customize their name and description.
             // 
-            await saveProject({
-                name: "My Awesome Project",
-                description: "Project generated from stories",
-                stories: updatedStories
-            });
+            // await saveProject({
+            //     name: "My Awesome Project",
+            //     description: "Project generated from stories",
+            //     stories: updatedStories
+            // });
         } catch (error) {
             console.error("Error during generation:", error);
         }
@@ -110,6 +119,13 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
                             className="rounded-r bg-blue-600 px-4 py-2 text-white shadow transition-colors hover:bg-blue-700"
                         >
                             Ask
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="bg-green-600 px-4 py-2 text-white shadow transition-colors hover:bg-green-700 rounded-r"
+                        >
+                            Save
                         </button>
                     </div>
                 </form>
