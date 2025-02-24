@@ -11,13 +11,23 @@ interface CardModalProps {
 export default function CardModal({ story, onClose, onSave }: CardModalProps) {
   const [editedName, setEditedName] = useState(story.name);
   const [editedDescription, setEditedDescription] = useState(story.description);
-  const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState(story.acceptanceCriteria);
+  const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState<string[]>(story.acceptanceCriteria || []);
+
+  const handleCriteriaUpdate = (index: number, updatedCriteria: string) => {
+    const newCriteria = [...editedAcceptanceCriteria];
+    newCriteria[index] = updatedCriteria;
+    setEditedAcceptanceCriteria(newCriteria);
+  };
+
+  console.log("Story received:", story);
+  console.log("Acceptance criteria:", editedAcceptanceCriteria);
 
   const handleSave = () => {
     const updatedStory: Story = {
       ...story,
       name: editedName,
       description: editedDescription,
+      acceptanceCriteria: editedAcceptanceCriteria,
     };
     onSave(updatedStory);
   };
@@ -32,14 +42,14 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Edit Story</h5>
-            <button type="button" className="close" onClick={onClose} aria-label="Close">
+            <button type="button" className="close pl-2" onClick={onClose} aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div className="modal-body">
             <form>
               {/* Editable field for the story name */}
-              <div className="form-group">
+              <div className="form-group pb-4">
                 <label htmlFor="storyName">Name</label>
                 <input
                   type="text"
@@ -50,7 +60,7 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                 />
               </div>
               {/* Editable field for the story description */}
-              <div className="form-group">
+              <div className="form-group pb-4">
                 <label htmlFor="storyDescription">Description</label>
                 <textarea
                   className="form-control"
@@ -60,12 +70,23 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                   onChange={(e) => setEditedDescription(e.target.value)}
                 ></textarea>
               </div>
-              {/* Editable field for each acceptance criteria */}
-              <div className="form-group">
-                <label htmlFor="acceptanceCriteria"></label>
-                {story.acceptanceCriteria?.map((value) => {
-                  return <p>{value}</p>
-                })}
+              {/* Editable field for the Acceptance Criteria */}
+              <div className="form-group pb-2">
+                <label>Acceptance Criteria</label>
+                  <div className="p-4 border">
+                  {editedAcceptanceCriteria.map((criteria, index) => (
+                    <div key={index}>
+                      <label htmlFor={`acceptanceCriteria-${index}`}>Criteria {index + 1}</label>
+                      <textarea
+                        className="form-control"
+                        id={`acceptanceCriteria-${index}`}
+                        rows={3}
+                        value={criteria}
+                        onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
+                      ></textarea>
+                    </div>
+                  ))}
+                </div>
               </div>
             </form>
           </div>

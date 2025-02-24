@@ -14,19 +14,11 @@ export default async function Chat() {
       redirect("/login");
   }
 
-  // const user2 : User | null = await UserModel.findOne({ username: user.username });
-  // const stories: Story[] = user2?.projects?.at(0)?.stories ?? [];
-  const stories: Story[] =  [];
-  
-
   return (
     <div className="relative min-h-screen">
       <h1 className="text-center">User Story Generator</h1>
-      <div className="flex justify-left p-4 overflow-y-auto h-[38rem] absolute">
-        <ProjectBar username={user.username} projects={JSON.parse(JSON.stringify(user.projects))}></ProjectBar>
-      </div>
-      <div className="flex justify-center p-4 overflow-y-auto h-[38rem]">
-        <ProjectView stories={JSON.parse(JSON.stringify(stories))} />
+      <div className="flex justify-center p-4 overflow-y-auto h-screen pb-5">
+        <ProjectView stories={[]} />
       </div>
     </div>
   );

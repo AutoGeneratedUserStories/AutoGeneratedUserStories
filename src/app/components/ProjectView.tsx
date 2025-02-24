@@ -8,13 +8,45 @@ import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 
 interface ProjectViewProps {
+    id: string;
+    name: string;
+    description: string;
     stories: Story[];
 }
 
-export default function ProjectView({ stories: initialStories }: ProjectViewProps) {
+export default function ProjectView({ stories: initialStories }: { stories: Story[] }) {
+    const [lists, setLists] = useState<ProjectViewProps[]>([
+        { id: "todo", name: "To Do", description:" ",stories: initialStories },
+        { id: "in-progress", name: "In Progress", description:" ",stories: [] },
+        { id: "done", name: "Done", description:" ",stories: [] },
+    ]);
     const { input, handleInputChange } = useChat();
-    const [stories, setStories] = useState<Story[]>(initialStories);
-    const [draggedStoryId, setDraggedStoryId] = useState<string | null>(null);
+    const [draggedStory, setDraggedStory] = useState<{ story: Story; sourceListId: string } | null>(null);
+
+    const onDragStart = (story: Story, sourceListId: string) => {
+        setDraggedStory({ story, sourceListId });
+    };
+    const onDragOver = (event: React.DragEvent) => {
+        event.preventDefault();
+    };
+
+    const onDrop = (targetListId: string) => {
+        if (!draggedStory) return;
+
+        setLists((prevLists) =>
+            prevLists.map((list) => {
+                if (list.id === draggedStory.sourceListId) {
+                    return { ...list, stories: list.stories.filter((s) => s.name !== draggedStory.story.name) };
+                }
+                if (list.id === targetListId) {
+                    return { ...list, stories: [...list.stories, draggedStory.story] };
+                }
+                return list;
+            })
+        );
+
+        setDraggedStory(null);
+    };
 
     const handleSave = (async () => {
         console.log(stories);
@@ -36,12 +68,20 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
 
             // Stream the partial responses
             for await (const partial of readStreamableValue(object)) {
-                if (partial?.stories) {
+                if (partial && partial.stories) {  
                     updatedStories = partial.stories.map((story: Story) => ({
                         name: story.name,
                         description: story.description,
                         acceptanceCriteria: story.acceptanceCriteria ?? [],
                     }));
+                }
+            }
+            setLists((prevLists) =>
+                prevLists.map((list) =>
+                    list.id === "todo" ? { ...list, stories: [...list.stories, ...updatedStories] } : list
+                )
+            );
+            // TODO: Maybe we shouldn't save by default and the user should be asked
                     setStories(updatedStories);
                 }
             }
@@ -68,49 +108,27 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
     );
 
     // Initialize stories list when the page loads
-    useEffect(() => {
-        setStories(initialStories);
-    }, [initialStories]);
-
-    const onDragStart = (e: React.DragEvent, storyId: string) => {
-        setDraggedStoryId(storyId); // Set the story being dragged
-    };
-
-    const onDragOver = (e: React.DragEvent) => {
-        e.preventDefault(); // Prevent default to allow drop
-    };
-
-    const onDrop = (e: React.DragEvent, targetIndex: number) => {
-        e.preventDefault();
-        if (draggedStoryId) {
-            const draggedIndex = stories.findIndex((story) => `story-${story.name}` === draggedStoryId);
-            const updatedStories = [...stories];
-            const [draggedStory] = updatedStories.splice(draggedIndex, 1); // Remove dragged story
-            updatedStories.splice(targetIndex, 0, draggedStory); // Insert the dragged story in the target position
-            setStories(updatedStories);
-        }
-    };
+    // useEffect(() => {
+    //     setStories(initialStories);
+    // }, [initialStories]);
 
     return (
-        <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] grid-rows-1">
-            <div className="col">
-            </div>
-            <div className="col">
-                {stories.map((story, index) => (
-                    <div
-                    key={index}
-                    onDragOver={(e) => onDragOver(e)}
-                    onDrop={(e) => onDrop(e, index)}
-                >
-                    <StoryCard
-                        key={story.name}
-                        story={story}
-                        onDragStart={onDragStart}
-                    />
-                </div>
+        <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] gap-4 p-4 overflow-auto">
+              <div className="h-[38rem]">
+            {/* This ensures the ProjectBar will fill the height of the screen */}
+            <ProjectBar />
+        </div>
+            <div className="grid grid-cols-3 gap-4 p-4 w-full h-full overflow-auto">
+                {lists.map((list) => (
+                    <div key={list.id}  className="border p-4 rounded-lg shadow-sm flex-1" onDragOver={onDragOver} onDrop={() => onDrop(list.id)}>
+                        <h2 className="font-bold text-lg">{list.name}</h2>
+                        {list.stories.map((story, index) => (
+                            <StoryCard key={`${story.name}-${index}`} story={story} onDragStart={() => onDragStart(story, list.id)} />
+                        ))}
+                    </div>
                 ))}
-                <form onSubmit={handleSubmit} className="fixed inset-x-0 bottom-0 flex justify-center p-4">
-                    <div className="flex w-full max-w-md">
+                <form onSubmit={handleSubmit} className="flex justify-center p-4 justify-items-flexend">
+                    <div className="flex w-full max-w-md items-end">
                         <input
                             type="text"
                             className="flex-1 rounded-l border border-zinc-300 p-2"
