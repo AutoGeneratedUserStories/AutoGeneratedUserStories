@@ -23,7 +23,7 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
 
             // Stream the partial responses
             for await (const partial of readStreamableValue(object)) {
-                if (partial?.stories) {
+                if (partial && partial.stories) {  
                     updatedStories = partial.stories.map((story: Story) => ({
                         name: story.name,
                         description: story.description,
