@@ -31,7 +31,7 @@ import { prop } from "@typegoose/typegoose/lib/prop";
     allowMixed: Severity.ALLOW,
   },
 })
-@index({ title: 1 })
+@index({ name: 1 })
 class Story {
   @prop({ required: true, default: [] })
   public acceptanceCriteria?: string[];

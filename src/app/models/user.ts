@@ -33,9 +33,9 @@ import { Project } from "./project";
     allowMixed: Severity.ALLOW,
   },
 })
-@index({ title: 1 })
+@index({ username: 1 })
 class User {
-  @prop({ required: true,})
+  @prop({ required: true})
   password: string;
 
   @prop({ required: true, unique: true })

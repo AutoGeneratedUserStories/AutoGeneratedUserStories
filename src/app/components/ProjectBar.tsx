@@ -1,12 +1,13 @@
 "use client"
 
 import 'bootstrap/dist/css/bootstrap.min.css'; // Correct import for Bootstrap CSS
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { logout } from '../lib/actions';
-import { validateRequest } from "../lib/auth.js";
+import { Project } from '../models/project';
 
 interface ProjectBarProps {
     username: string;
+    projects: Project[];
 }
 
 function DropdownElement({ name, icon , onClick}: { name: string, icon: ReactNode, onClick?: () => void }) {
@@ -43,7 +44,7 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
                     <div role="button"
                         className="flex items-center w-full p-0 leading-tight hover:bg-gray-200 transition-all rounded-lg outline-none bg-blue-gray-50/50 text-start text-blue-gray-700 hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
                         <button type="button" onClick={() => {
-                            setIsOpen(!isOpen)
+                            setIsOpen(!isOpen);
                         }}
                             className="flex items-center justify-between w-full p-3 font-sans text-xl antialiased font-semibold leading-snug text-left transition-colors border-b-0 select-none border-b-blue-gray-100 text-blue-gray-900 hover:text-blue-gray-900">
                             <div className="mr-4 place-items-center">
@@ -69,19 +70,7 @@ function DropdownContainer({ name, children }: { name: string, children?: ReactN
     )
 }
 
-export default function ProjectBar({ username }: ProjectBarProps) {
-
-        const [projects, setProjects] = useState([]);
-
-        useEffect(async () => {
-            const user  = await validateRequest();
-                if (!user) {
-                  return {
-                    error: "Unauthorized",
-                  };
-                }
-        });
-
+export default function ProjectBar({ username, projects }: ProjectBarProps) {
         return (
         <div
             className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border p-4 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5">
@@ -89,6 +78,18 @@ export default function ProjectBar({ username }: ProjectBarProps) {
                 <h5 className="block font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
                     Projects
                 </h5>
+                <div className="mt-4">
+                <DropdownContainer name="Projects">
+                    {projects.map((project) => (
+                        <DropdownElement
+                            key={project.id}
+                            name={project.name}
+                            onClick={() => onProjectSelect(project)} // NEW: pass the project back to update stories
+                            icon={<ProjectIcon />}
+                        />
+                    ))}
+                </DropdownContainer>
+            </div>
             </div>
             <DropdownContainer name="Dashboard">
                 <DropdownElement name={username} icon={

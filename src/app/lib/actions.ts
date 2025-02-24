@@ -37,6 +37,7 @@ export async function generate(input: string) {
   return { object: stream.value };
 }
 
+
 export async function saveProject(data: { name: string; description?: string; stories: Story[]}) {
   try {
     const { user } = await validateRequest();

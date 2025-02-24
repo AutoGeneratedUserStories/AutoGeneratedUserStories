@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useCallback, useEffect } from "react";
 import StoryCard from "./StoryCard";
@@ -23,7 +23,11 @@ export default function ProjectView({ stories: initialStories }: ProjectViewProp
             description: "Project generated from stories",
             stories: stories
         }); 
-    })
+    });
+
+    const handleLoad = (async (stories: Story[]) => {
+        setStories(stories);
+    });
 
     const handleAsk = useCallback(async () => {
         try {

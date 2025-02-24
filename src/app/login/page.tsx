@@ -9,7 +9,7 @@ import { validateRequest, lucia } from '../lib/auth';
 import { UserModel } from '../models/user';
 import { loginSchema } from '../lib/schema';
 
-export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { user } = await validateRequest();
   const { error } = await searchParams || {};
   
