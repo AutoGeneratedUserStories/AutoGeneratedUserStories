@@ -5,8 +5,13 @@ import { google } from "@ai-sdk/google";
 import { createStreamableValue } from "ai/rsc";
 import { storySchema } from "./schema";
 import { Story } from "../models/story"; // Import the Story model
-import connectDB from "./connectDB";
-import { ProjectModel } from "../models/project";
+import { Project, ProjectModel } from "../models/project";
+import { ActionResult } from "next/dist/server/app-render/types";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { validateRequest, lucia } from "./auth";
+import { UserModel } from "../models/user";
+import mongoose from "mongoose";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -32,22 +37,56 @@ export async function generate(input: string) {
   return { object: stream.value };
 }
 
-export async function saveProject(data: { name: string; description?: string; stories: Story[] }) {
+
+export async function saveProject(data: { name: string; description?: string; stories: Story[]}) {
   try {
-    await connectDB();
+    const { user } = await validateRequest();
+    if (!user) {
+      return {
+        error: "Unauthorized",
+      };
+    }
 
     const { name, description, stories } = data;
+  
+    const username = user.username;
 
-    const project = new ProjectModel({
+    const newProject: Project = {
       name,
       description,
       stories,
-    });
+      _id: new mongoose.Types.ObjectId(),
+      id: "", // This will be set by the post hook if applicable, or you can manually set it to _id.toString()
+    } as Project;
 
-    // Save the project to the database
-    const savedProject = await project.save();
-    // return savedProject; // Maybe something should be returned, but not this
+    // Update the user document to embed the new project.
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { username },
+      { $push: { projects: newProject } },
+      { new: true }
+    );
+
   } catch (error) {
     return { error };
   }
+}
+
+export async function logout(): Promise<ActionResult> {
+  'use server';
+  const { session } = await validateRequest();
+  if (!session) {
+    return {
+      error: 'Unauthorized',
+    };
+  }
+ 
+  await lucia.invalidateSession(session.id);
+ 
+  const sessionCookie = lucia.createBlankSessionCookie();
+  (await cookies()).set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
+  return redirect('/login');
 }

@@ -20,13 +20,12 @@ import { getModelForClass, index, ModelOptions, post, prop, Severity } from "@ty
 @ModelOptions({
   schemaOptions: {
     timestamps: true,
-    collection: "projects",
   },
   options: {
     allowMixed: Severity.ALLOW,
   },
 })
-@index({ title: 1 })
+@index({ name: 1 })
 class Project {
   @prop({ required: true, type: () => [Story] })
   stories: Story[];

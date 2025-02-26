@@ -7,14 +7,15 @@ import {
   Severity,
 } from "@typegoose/typegoose";
 import { prop } from "@typegoose/typegoose/lib/prop";
-
-@post<Story>("save", function (doc) {
+import { Project } from "./project";
+ 
+@post<User>("save", function (doc) {
   if (doc) {
     doc.id = doc._id.toString();
     doc._id = doc.id;
   }
 })
-@post<Story[]>(/^find/, function (docs) {
+@post<User[]>(/^find/, function (docs) {
   // @ts-expect-error ignore
   if (this.op === "find") {
     docs.forEach((doc) => {
@@ -26,26 +27,26 @@ import { prop } from "@typegoose/typegoose/lib/prop";
 @ModelOptions({
   schemaOptions: {
     timestamps: true,
+    collection: "users",
   },
   options: {
     allowMixed: Severity.ALLOW,
   },
 })
-@index({ name: 1 })
-class Story {
-  @prop({ required: true, default: [] })
-  public acceptanceCriteria?: string[];
+@index({ username: 1 })
+class User {
+  @prop({ required: true})
+  password: string;
 
-  @prop()
-  public description: string;
+  @prop({ required: true, unique: true })
+  username: string;
 
-  @prop({ required: true })
-  public name: string;
-
+  @prop({ required: false, type: () => [Project], _id: false, default: [] })
+  projects?: Project[];
+  
   _id: mongoose.Types.ObjectId | string;
-
   id: string;
 }
-
-const StoryModel = mongoose.models.Story || getModelForClass(Story);
-export { StoryModel, Story };
+ 
+const UserModel = mongoose.models.User || getModelForClass(User);
+export { UserModel, User };
