@@ -8,6 +8,7 @@ import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
+import SaveProjectModal from "./SaveProjectModal";
 
 interface ProjectViewProps {
   id: string;
@@ -32,6 +33,9 @@ export default function ProjectView({
     { id: "in-progress", name: "In Progress", description: "", stories: [] },
     { id: "done", name: "Done", description: "", stories: [] },
   ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { input, handleInputChange } = useChat();
   const [draggedStory, setDraggedStory] = useState<{
@@ -71,11 +75,30 @@ export default function ProjectView({
   const handleSave = async () => {
     const todoList = lists.find((list) => list.id === "todo");
     if (!todoList) return;
-    await saveProject({
+    // idk if we still need await, my implementation doesn't use it but it may need to be added back, please change where applicable
+    // await saveProject({
+    //   name: "star wars game",
+    //   description: "Project generated from stories",
+    //   stories: todoList.stories,
+    // });
+    const projectToEdit = {
       name: "star wars game",
       description: "Project generated from stories",
       stories: todoList.stories,
-    });
+    };
+
+    // I have to cast so that it can set it to a Project,
+    // without the cast it says ProjectToEdit is not type
+    // project bc it is missing _id and id, lmk if this is not okay
+    setSelectedProject(projectToEdit as Project);
+
+    await saveProject(projectToEdit);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirm = (updatedProject: Project) => {
+    saveProject(updatedProject);
+    setIsModalOpen(false);
   };
 
   const handleSelectProject = async (project: Project) => {
@@ -89,7 +112,7 @@ export default function ProjectView({
   const handleAsk = useCallback(async () => {
     try {
       const { object } = await generate(input);
-      
+
       // Stream partial responses and update the cards immediately
       for await (const partial of readStreamableValue(object)) {
         if (partial?.stories) {
@@ -145,14 +168,12 @@ export default function ProjectView({
                 draggable
                 onDragStart={() => onDragStart(story, list.id)}
               >
-                <StoryCard
-                  story={story}
-                />
+                <StoryCard story={story} />
               </div>
             ))}
           </div>
         ))}
-        <form onSubmit={handleSubmit} className="col-span-3 flex justify-center p-4">
+        <div className="col-span-3 flex justify-center p-4">
           <div className="flex w-full max-w-2xl items-center">
             <input
               type="text"
@@ -164,19 +185,31 @@ export default function ProjectView({
             <button
               type="submit"
               className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
+              onClick={handleSubmit}
             >
               Ask
             </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
-            >
-              Save
-            </button>
+            <div>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+              >
+                Save
+              </button>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
+  
+      {isModalOpen && selectedProject && (
+        <SaveProjectModal
+          project={selectedProject}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleConfirm}
+        />
+      )}
     </div>
   );
+  
 }
