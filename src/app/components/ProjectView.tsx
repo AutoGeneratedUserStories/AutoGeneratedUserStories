@@ -34,6 +34,8 @@ export default function ProjectView({
     { id: "done", name: "Done", description: "", stories: [] },
   ]);
 
+  const [projectList, setProjectList] = useState<Project[]>(projects);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -75,21 +77,14 @@ export default function ProjectView({
   const handleSave = async () => {
     const todoList = lists.find((list) => list.id === "todo");
     if (!todoList) return;
-    // idk if we still need await, my implementation doesn't use it but it may need to be added back, please change where applicable
-    // await saveProject({
-    //   name: "star wars game",
-    //   description: "Project generated from stories",
-    //   stories: todoList.stories,
-    // });
+
     const projectToEdit = {
-      name: "star wars game",
+      name: "Example Project",
       description: "Project generated from stories",
       stories: todoList.stories,
     };
 
-    // I have to cast so that it can set it to a Project,
-    // without the cast it says ProjectToEdit is not type
-    // project bc it is missing _id and id, lmk if this is not okay
+    // Cast so that it can set it to a Project
     setSelectedProject(projectToEdit as Project);
 
     await saveProject(projectToEdit);
@@ -98,6 +93,7 @@ export default function ProjectView({
 
   const handleConfirm = (updatedProject: Project) => {
     saveProject(updatedProject);
+    setProjectList((prevProjects) => [...prevProjects, updatedProject]);
     setIsModalOpen(false);
   };
 
@@ -148,7 +144,7 @@ export default function ProjectView({
       <div className="h-[38rem]">
         <ProjectBar
           username={username}
-          projects={projects}
+          projects={projectList}
           onSelectProject={handleSelectProject}
         />
       </div>
