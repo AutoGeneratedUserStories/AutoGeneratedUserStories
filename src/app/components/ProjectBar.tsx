@@ -95,18 +95,16 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
     >
       <h1 className="text-xl font-bold text-center mb-4">User Story Generator</h1>
         <div className="overflow-y-auto overflow-x-hidden">
-        <div className="mt-4 ">
-          <DropdownContainer name="Projects">
-            {projects.map((project, index) => (
-              <DropdownElement
-                key={`project-${index}`}
-                name={project.name}
-                onClick={() => onSelectProject(project)}
-                icon={<ProjectIcon />}
-              />
-            ))}
-          </DropdownContainer>
-        </div>
+        <DropdownContainer name="Projects">
+          {projects.map((project, index) => (
+            <DropdownElement
+              key={`project-${index}`}
+              name={project.name}
+              onClick={() => onSelectProject(project)}
+              icon={<ProjectIcon />}
+            />
+          ))}
+        </DropdownContainer>
         <DropdownContainer name="Dashboard">
           <DropdownElement
             name={username}
