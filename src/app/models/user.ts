@@ -33,7 +33,6 @@ import { Project } from "./project";
     allowMixed: Severity.ALLOW,
   },
 })
-@index({ username: 1 })
 class User {
   @prop({ required: true})
   password: string;

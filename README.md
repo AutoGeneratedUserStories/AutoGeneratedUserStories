@@ -2,8 +2,6 @@
 
 ## About
 
-SWEN 356 Project
-
 This project allows users to generate user stories from requirements using generative AI.
 
 Users can describe a project and the development team, then tool will generate user stories. Each story has:
