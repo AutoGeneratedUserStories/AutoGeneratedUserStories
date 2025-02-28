@@ -1,9 +1,9 @@
 "use server";
 
-import { streamObject } from "ai";
+import { generateObject, streamObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { createStreamableValue } from "ai/rsc";
-import { storySchema } from "./schema";
+import { projectSchema, storySchema } from "./schema";
 import { Story } from "../models/story"; // Import the Story model
 import { Project, ProjectModel } from "../models/project";
 import { ActionResult } from "next/dist/server/app-render/types";
@@ -35,6 +35,19 @@ export async function generate(input: string) {
   })();
 
   return { object: stream.value };
+}
+
+export async function reprompt(input: string, project: Project) {
+    const { object } = await generateObject({
+      model: google("gemini-2.0-flash"),
+      system:
+        "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
+        "of the user stories you edited along with the unchanged user stories in the same order.",
+      prompt: input,
+      schema: projectSchema,
+
+  })
+  return object;
 }
 
 

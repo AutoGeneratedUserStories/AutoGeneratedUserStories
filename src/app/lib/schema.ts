@@ -10,6 +10,12 @@ export const storySchema = z.object({
   ),
 });
 
+export const projectSchema = z.object({
+  name: z.string().describe("Name of the project."),
+  description: z.string().describe("Description of the project."),
+  stories: z.array(storySchema).describe("List of the user stories"),
+});
+
 export const loginSchema = z.object({
   username: z
     .string()

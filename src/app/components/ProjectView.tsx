@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, saveProject } from "../lib/actions";
+import { generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
@@ -111,7 +111,9 @@ export default function ProjectView({
 
   const handleAsk = useCallback(async () => {
     try {
-      const { object } = await generate(input);
+
+      if (selectedProject == null){
+        const { object } = await generate(input);
 
       // Stream partial responses and update the cards immediately
       for await (const partial of readStreamableValue(object)) {
@@ -130,6 +132,12 @@ export default function ProjectView({
           );
         }
       }
+      }
+      else {
+        const project  = await reprompt(input, selectedProject!);
+        console.log(project);
+      }
+      
     } catch (error) {
       console.error("Error during generation:", error);
     }
