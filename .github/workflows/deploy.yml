@@ -1,0 +1,34 @@
+name: Deploy to Vercel
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    steps:
+      - uses: actions/checkout@
+      - uses: dkershner6/vercel-set-env-action@v1
+        with:
+          token: ${{ secrets.VERCEL_TOKEN }}
+          projectName: auto-generated-user-stories
+          envVariableKeys: CLIENT_EMAIL,PRIVATE_KEY,SPREADSHEET_ID
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          TARGET_GOOGLE_GENERATIVE_AI_API_KEY: preview,development,production
+          TYPE_GOOGLE_GENERATIVE_AI_API_KEY: encrypted
+
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TARGET_MONGODB_URI: preview,development,production
+          TYPE_MONGODB_URI: encrypted
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
