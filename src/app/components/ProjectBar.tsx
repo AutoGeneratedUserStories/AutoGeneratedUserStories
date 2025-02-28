@@ -91,8 +91,9 @@ function DropdownContainer({ name, children }: { name: string; children?: ReactN
 export default function ProjectBar({ username, projects, onSelectProject }: ProjectBarProps) {
   return (
     <div
-      className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border p-4 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5 overflow-hidden"
+      className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border pt-4 ps-2 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5 overflow-hidden"
     >
+      <h1 className="text-xl font-bold text-center mb-4">User Story Generator</h1>
         <div className="mt-4">
           <DropdownContainer name="Projects">
             {projects.map((project, index) => (

@@ -11,11 +11,8 @@ export default async function Chat() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <h1 className="text-center">User Story Generator</h1>
-      <div className="flex justify-center ps-4 h-screen">
+      <div className="flex justify-center ps-4 h-[90vh] pb-5">
         <ProjectView stories={[]} username={user.username} projects={JSON.parse(JSON.stringify(user.projects))}/>
       </div>
-    </div>
   );
 }
