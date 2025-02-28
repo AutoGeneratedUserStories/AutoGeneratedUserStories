@@ -156,7 +156,7 @@ export default function ProjectView({
           {lists.map((list) => (
             <div
               key={list.id}
-              className="border p-4 rounded-lg shadow-sm flex-1"
+              className="border p-4 rounded-lg shadow-sm bg-light flex-1"
               onDragOver={onDragOver}
               onDrop={() => onDrop(list.id)}
             >
