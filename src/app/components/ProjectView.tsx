@@ -140,7 +140,7 @@ export default function ProjectView({
   );
 
   return (
-    <div className="grid grid-cols-[200px_minmax(900px,_1fr)_25px] gap-4">
+    <div className="grid grid-cols-[1fr_10fr] gap-4">
       <div className="h-full pt-4">
         <ProjectBar
           username={username}
