@@ -148,51 +148,56 @@ export default function ProjectView({
           onSelectProject={handleSelectProject}
         />
       </div>
-      <div className="grid grid-cols-3 gap-4 p-4 w-full h-full overflow-auto">
-        {lists.map((list) => (
-          <div
-            key={list.id}
-            className="border p-4 rounded-lg shadow-sm flex-1"
-            onDragOver={onDragOver}
-            onDrop={() => onDrop(list.id)}
-          >
-            <h2 className="font-bold text-lg mb-4">{list.name}</h2>
-            {list.stories.map((story, index) => (
-              <div
-                key={`${story.name}-${index}`}
-                className="mb-4"
-                draggable
-                onDragStart={() => onDragStart(story, list.id)}
-              >
-                <StoryCard story={story} />
-              </div>
-            ))}
-          </div>
-        ))}
-        <div className="col-span-3 flex justify-center p-4">
-          <div className="flex w-full max-w-2xl items-center">
-            <input
-              type="text"
-              className="flex-1 rounded-l border border-zinc-300 p-4 text-lg"
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Describe your project..."
-            />
-            <button
-              type="submit"
-              className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
-              onClick={handleSubmit}
+      <div className="w-full h-full overflow-auto">
+        <div className="ps-4 pt-4">
+          <h2>Project title goes here but is always null {selectedProject?.name}</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-4 p-4 ">
+          {lists.map((list) => (
+            <div
+              key={list.id}
+              className="border p-4 rounded-lg shadow-sm flex-1"
+              onDragOver={onDragOver}
+              onDrop={() => onDrop(list.id)}
             >
-              Ask
-            </button>
-            <div>
+              <h2 className="font-bold text-lg mb-4">{list.name}</h2>
+              {list.stories.map((story, index) => (
+                <div
+                  key={`${story.name}-${index}`}
+                  className="mb-4"
+                  draggable
+                  onDragStart={() => onDragStart(story, list.id)}
+                >
+                  <StoryCard story={story} />
+                </div>
+              ))}
+            </div>
+          ))}
+          <div className="col-span-3 flex justify-center p-4">
+            <div className="flex w-full max-w-2xl items-center">
+              <input
+                type="text"
+                className="flex-1 rounded-l border border-zinc-300 p-4 text-lg"
+                value={input}
+                onChange={handleInputChange}
+                placeholder="Describe your project..."
+              />
               <button
-                type="button"
-                onClick={handleSave}
-                className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                type="submit"
+                className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
+                onClick={handleSubmit}
               >
-                Save
+                Ask
               </button>
+              <div>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </div>
