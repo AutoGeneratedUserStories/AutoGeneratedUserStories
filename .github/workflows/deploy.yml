@@ -11,7 +11,7 @@ jobs:
       pull-requests: write
       repository-projects: write
     steps:
-      - uses: actions/checkout@
+      - uses: actions/checkout@v4
       - uses: dkershner6/vercel-set-env-action@v1
         with:
           token: ${{ secrets.VERCEL_TOKEN }}
