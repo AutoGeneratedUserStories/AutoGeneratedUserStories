@@ -4,13 +4,18 @@ import { cache } from 'react';
 import type { Session, User } from 'lucia';
 import { adapter } from '../models/session';
  
+interface UserAttributes {
+  username: string;
+  projects: string[];
+}
+
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
     attributes: {
       secure: process.env.NODE_ENV === 'production',
     },
   },
-  getUserAttributes: (attributes: any) => {
+  getUserAttributes: (attributes: UserAttributes) => {
     return {
       username: attributes.username,
       projects: attributes.projects
@@ -56,5 +61,6 @@ export const validateRequest = cache(
 declare module 'lucia' {
   interface Register {
     Lucia: typeof lucia;
+    DatabaseUserAttributes: UserAttributes;
   }
 }
