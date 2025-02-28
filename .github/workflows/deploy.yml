@@ -16,7 +16,7 @@ jobs:
         with:
           token: ${{ secrets.VERCEL_TOKEN }}
           projectName: auto-generated-user-stories
-          envVariableKeys: CLIENT_EMAIL,PRIVATE_KEY,SPREADSHEET_ID
+          envVariableKeys: GOOGLE_GENERATIVE_AI_API_KEY,MONGODB_URI
         env:
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
           TARGET_GOOGLE_GENERATIVE_AI_API_KEY: preview,development,production
