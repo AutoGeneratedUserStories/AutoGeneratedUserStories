@@ -54,9 +54,9 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
             display: "flex",
             flexDirection: "column",
             width: "100%",
-            padding: "1rem",
-            margin: "1rem",
-            boxShadow: "0.20rem 0.15rem 0.10rem #888888",
+            padding: ".5rem",
+            margin: "0rem",
+            boxShadow: "0.15rem 0.10rem 0.10rem #CCCCCC",
             minWidth: "300px",
             minHeight: "200px",
           }}
@@ -64,13 +64,13 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
           <div className="card-body">
             <h5
               className="card-title"
-              style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}
+              style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}
             >
               <a onClick={this.openModal} style={{ cursor: "pointer" }}>
                 {story.name}
               </a>
             </h5>
-            <p className="card-text" style={{ fontSize: "1.2rem" }}>
+            <p className="card-text" style={{ fontSize: "1rem" }}>
               {story.description}
             </p>
           </div>
