@@ -3,12 +3,13 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, saveProject } from "../lib/actions";
+import { generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
+import mongoose from "mongoose";
 
 interface ProjectViewProps {
   id: string;
@@ -109,7 +110,9 @@ export default function ProjectView({
 
   const handleAsk = useCallback(async () => {
     try {
-      const { object } = await generate(input);
+
+      if (lists[0].stories.length == 0){
+        const { object } = await generate(input);
 
       // Stream partial responses and update the cards immediately
       for await (const partial of readStreamableValue(object)) {
@@ -128,6 +131,47 @@ export default function ProjectView({
           );
         }
       }
+      }
+      else {
+        let newProject;
+        if (selectedProject == null) {
+          const todoList = lists.find((list) => list.id === "todo");
+          if (!todoList) return;
+          newProject = {
+            name: "Example Project",
+            description: "Project generated from stories",
+            stories: todoList.stories,
+          }as Project;
+          console.log(newProject);
+          setSelectedProject( newProject) ;
+        }
+        else{
+          newProject = selectedProject;
+        }
+        const project  = await reprompt(input, newProject!);
+           // Flatten the nested stories structure into a single Story[] array.
+         const flattenedStories: Story[] = project.stories.flatMap(story => {
+           const newStory: Story = {
+                 name: story.name,
+                 description: story.description,
+                 acceptanceCriteria: story.acceptanceCriteria,
+                 _id: new mongoose.Types.ObjectId(),
+                 id: "", // This will be set by the post hook if applicable, or you can manually set it to _id.toString()
+               } as Story;
+               return newStory;
+         })
+
+         //Now update the state.
+         setLists(prevLists =>
+           prevLists.map(list =>
+             list.id === "todo"
+               ? { ...list, stories: flattenedStories }
+               : list
+           )
+         );
+        //console.log(project.stories);
+      }
+      
     } catch (error) {
       console.error("Error during generation:", error);
     }
