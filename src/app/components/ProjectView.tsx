@@ -35,7 +35,7 @@ export default function ProjectView({
   ]);
 
   const [projectList, setProjectList] = useState<Project[]>(projects);
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -89,6 +89,9 @@ export default function ProjectView({
     setIsModalOpen(true);
   };
 
+  const handleExportClicked = async () => {
+  }
+
   const handleConfirm = (updatedProject: Project) => {
     setSelectedProject(updatedProject);
     saveProject(updatedProject);
@@ -140,6 +143,14 @@ export default function ProjectView({
     },
     [handleAsk]
   );
+
+  const handleExport = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      handleExportClicked()
+    },
+    [handleExportClicked]
+  )
 
   return (
     <div className="grid grid-cols-[1fr_10fr] gap-4">
@@ -198,6 +209,15 @@ export default function ProjectView({
                   className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
                 >
                   Save
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                >
+                  Export
                 </button>
               </div>
             </div>
