@@ -79,8 +79,8 @@ export default function ProjectView({
     if (!todoList) return;
 
     const projectToEdit = {
-      name: "Example Project",
-      description: "Project generated from stories",
+      name: "New Project",
+      description: input,
       stories: todoList.stories,
     };
 
