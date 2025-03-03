@@ -86,18 +86,20 @@ export default function ProjectView({
 
     // Cast so that it can set it to a Project
     setSelectedProject(projectToEdit as Project);
-
-    await saveProject(projectToEdit);
     setIsModalOpen(true);
   };
 
   const handleConfirm = (updatedProject: Project) => {
+    setSelectedProject(updatedProject);
     saveProject(updatedProject);
     setProjectList((prevProjects) => [...prevProjects, updatedProject]);
     setIsModalOpen(false);
   };
 
   const handleSelectProject = async (project: Project) => {
+    if (project != null)
+      setSelectedProject(project);
+
     setLists((prevLists) =>
       prevLists.map((list) =>
         list.id === "todo" ? { ...list, stories: [...project.stories] } : list
@@ -140,59 +142,64 @@ export default function ProjectView({
   );
 
   return (
-    <div className="grid grid-cols-[200px_minmax(900px,_1fr)_100px] gap-4 p-4 overflow-auto">
-      <div className="h-[38rem]">
+    <div className="grid grid-cols-[1fr_10fr] gap-4">
+      <div className="h-full pt-4">
         <ProjectBar
           username={username}
           projects={projectList}
           onSelectProject={handleSelectProject}
         />
       </div>
-      <div className="grid grid-cols-3 gap-4 p-4 w-full h-full overflow-auto">
-        {lists.map((list) => (
-          <div
-            key={list.id}
-            className="border p-4 rounded-lg shadow-sm flex-1"
-            onDragOver={onDragOver}
-            onDrop={() => onDrop(list.id)}
-          >
-            <h2 className="font-bold text-lg mb-4">{list.name}</h2>
-            {list.stories.map((story, index) => (
-              <div
-                key={`${story.name}-${index}`}
-                className="mb-4"
-                draggable
-                onDragStart={() => onDragStart(story, list.id)}
-              >
-                <StoryCard story={story} />
-              </div>
-            ))}
-          </div>
-        ))}
-        <div className="col-span-3 flex justify-center p-4">
-          <div className="flex w-full max-w-2xl items-center">
-            <input
-              type="text"
-              className="flex-1 rounded-l border border-zinc-300 p-4 text-lg"
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Describe your project..."
-            />
-            <button
-              type="submit"
-              className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
-              onClick={handleSubmit}
+      <div className="w-full h-full overflow-auto">
+        <div className="ps-4 pt-4">
+          <h2>{selectedProject?.name ?? "Unsaved Project"}</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-4 p-4 ">
+          {lists.map((list) => (
+            <div
+              key={list.id}
+              className="border p-4 rounded-lg shadow-sm bg-light flex-1"
+              onDragOver={onDragOver}
+              onDrop={() => onDrop(list.id)}
             >
-              Ask
-            </button>
-            <div>
+              <h2 className="font-bold text-lg mb-4">{list.name}</h2>
+              {list.stories.map((story, index) => (
+                <div
+                  key={`${story.name}-${index}`}
+                  className="mb-4"
+                  draggable
+                  onDragStart={() => onDragStart(story, list.id)}
+                >
+                  <StoryCard story={story} />
+                </div>
+              ))}
+            </div>
+          ))}
+          <div className="col-span-3 flex justify-center p-4">
+            <div className="flex w-full max-w-2xl items-center">
+              <input
+                type="text"
+                className="flex-1 rounded-l border border-zinc-300 p-4 text-lg"
+                value={input}
+                onChange={handleInputChange}
+                placeholder="Describe your project..."
+              />
               <button
-                type="button"
-                onClick={handleSave}
-                className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                type="submit"
+                className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
+                onClick={handleSubmit}
               >
-                Save
+                Ask
               </button>
+              <div>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </div>
