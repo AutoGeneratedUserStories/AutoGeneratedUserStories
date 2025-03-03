@@ -38,7 +38,7 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
       id="exampleModal"
       style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }} // Display modal with backdrop
     >
-      <div className="modal-dialog" role="document">
+      <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Edit Story</h5>
@@ -71,22 +71,19 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                 ></textarea>
               </div>
               {/* Editable field for the Acceptance Criteria */}
-              <div className="form-group pb-2">
-                <label>Acceptance Criteria</label>
-                  <div className="p-4 border">
-                  {editedAcceptanceCriteria.map((criteria, index) => (
-                    <div key={index}>
-                      <label htmlFor={`acceptanceCriteria-${index}`}>Criteria {index + 1}</label>
-                      <textarea
-                        className="form-control"
-                        id={`acceptanceCriteria-${index}`}
-                        rows={3}
-                        value={criteria}
-                        onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
-                      ></textarea>
-                    </div>
-                  ))}
+              <div className="pb-2">
+              {editedAcceptanceCriteria.map((criteria, index) => (
+                <div key={index}>
+                  <label className="pt-2" htmlFor={`acceptanceCriteria-${index}`}>Acceptance Criteria {index + 1}</label>
+                  <textarea
+                    className="form-control"
+                    id={`acceptanceCriteria-${index}`}
+                    rows={3}
+                    value={criteria}
+                    onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
+                  ></textarea>
                 </div>
+              ))}
               </div>
             </form>
           </div>
