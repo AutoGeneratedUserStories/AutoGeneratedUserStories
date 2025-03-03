@@ -86,18 +86,20 @@ export default function ProjectView({
 
     // Cast so that it can set it to a Project
     setSelectedProject(projectToEdit as Project);
-
-    await saveProject(projectToEdit);
     setIsModalOpen(true);
   };
 
   const handleConfirm = (updatedProject: Project) => {
+    setSelectedProject(updatedProject);
     saveProject(updatedProject);
     setProjectList((prevProjects) => [...prevProjects, updatedProject]);
     setIsModalOpen(false);
   };
 
   const handleSelectProject = async (project: Project) => {
+    if (project != null)
+      setSelectedProject(project);
+
     setLists((prevLists) =>
       prevLists.map((list) =>
         list.id === "todo" ? { ...list, stories: [...project.stories] } : list
@@ -150,7 +152,7 @@ export default function ProjectView({
       </div>
       <div className="w-full h-full overflow-auto">
         <div className="ps-4 pt-4">
-          <h2>Project title goes here but is always null {selectedProject?.name}</h2>
+          <h2>{selectedProject?.name ?? "Unsaved Project"}</h2>
         </div>
         <div className="grid grid-cols-3 gap-4 p-4 ">
           {lists.map((list) => (
