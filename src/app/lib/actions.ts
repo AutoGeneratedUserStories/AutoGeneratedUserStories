@@ -46,8 +46,6 @@ export async function reprompt(input: string, project: Project) {
       prompt: input,
       schema: projectSchema,
   })
-  console.log("Your job is to take this existing project and adjust the user stories based on user input. Return all" +
-        "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " + JSON.stringify(project));
   return object;
 }
 

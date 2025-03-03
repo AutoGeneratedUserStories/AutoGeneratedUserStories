@@ -133,8 +133,22 @@ export default function ProjectView({
       }
       }
       else {
-        const project  = await reprompt(input, selectedProject!);
-
+        let newProject;
+        if (selectedProject == null) {
+          const todoList = lists.find((list) => list.id === "todo");
+          if (!todoList) return;
+          newProject = {
+            name: "Example Project",
+            description: "Project generated from stories",
+            stories: todoList.stories,
+          }as Project;
+          console.log(newProject);
+          setSelectedProject( newProject) ;
+        }
+        else{
+          newProject = selectedProject;
+        }
+        const project  = await reprompt(input, newProject!);
            // Flatten the nested stories structure into a single Story[] array.
          const flattenedStories: Story[] = project.stories.flatMap(story => {
            const newStory: Story = {
@@ -144,7 +158,6 @@ export default function ProjectView({
                  _id: new mongoose.Types.ObjectId(),
                  id: "", // This will be set by the post hook if applicable, or you can manually set it to _id.toString()
                } as Story;
-               console.log(newStory);
                return newStory;
          })
 
