@@ -68,6 +68,7 @@ export default function ProjectView({
         // Add it to the target list
         if (list.id === targetListId) {
           draggedStory.story.category = list.id;
+          console.log(draggedStory.story.category);
           return { ...list, stories: [...list.stories, draggedStory.story] };
         }
         return list;
@@ -77,13 +78,15 @@ export default function ProjectView({
   };
 
   const handleSave = async () => {
-    const todoList = lists.find((list) => list.id === "todo");
-    if (!todoList) return;
+    const allStories: Story[] = lists.reduce(
+      (acc, list) => [...acc, ...list.stories],
+      [] as Story[]
+    );
 
     const projectToEdit: Project = {
       name: "Example Project",
       description: "Project generated from stories",
-      stories: todoList.stories,
+      stories: allStories,
       _id: "",
       id: ""
     };
@@ -124,6 +127,7 @@ export default function ProjectView({
             name: story.name,
             description: story.description,
             acceptanceCriteria: story.acceptanceCriteria ?? [],
+            category: "todo",
           }));
           setLists((prevLists) =>
             prevLists.map((list) =>
@@ -138,12 +142,15 @@ export default function ProjectView({
       else {
         let newProject: Project;
         if (!selectedProject) {
-          const todoList = lists.find((list) => list.id === "todo");
-          if (!todoList) return;
+          const allStories: Story[] = lists.reduce(
+            (acc, list) => [...acc, ...list.stories],
+            [] as Story[]
+          );
+        
           newProject = {
             name: "Example Project",
             description: "Project generated from stories",
-            stories: todoList.stories,
+            stories: allStories,
           }as Project;
           console.log(newProject);
           setSelectedProject( newProject) ;
