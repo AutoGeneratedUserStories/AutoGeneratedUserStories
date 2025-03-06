@@ -86,9 +86,8 @@ export default function ProjectView({
       name: "Example Project",
       description: "Project generated from stories",
       stories: allStories,
-      _id: "",
       id: ""
-    };
+    } as Project;
 
     // Cast so that it can set it to a Project
     setSelectedProject(projectToEdit);
@@ -139,45 +138,43 @@ export default function ProjectView({
       }
       }
       else {
-        let newProject: Project;
-        if (!selectedProject) {
+        let currProject = selectedProject;
+            // If no project exists yet, create a new one from the current lists
+        if (!currProject) {
           const allStories: Story[] = lists.reduce(
             (acc, list) => [...acc, ...list.stories],
             [] as Story[]
           );
         
-          newProject = {
+          currProject = {
             name: "Example Project",
             description: "Project generated from stories",
             stories: allStories,
-          }as Project;
-          setSelectedProject( newProject) ;
-        }
-        else{
-          newProject = selectedProject;
-        }
-        const project  = await reprompt(input, newProject!);
-           // Flatten the nested stories structure into a single Story[] array.
-         const flattenedStories: Story[] = project.stories.map(story => {
-           const newStory: Story = {
-                 name: story.name,
-                 description: story.description,
-                 acceptanceCriteria: story.acceptanceCriteria,
-                 id: "",
-               } as Story;
-               return newStory;
-         });
+          } as Project;
 
-         //Now update the state.
-         setLists(prevLists =>
-           prevLists.map(list =>
-             list.id === "todo"
-               ? { ...list, stories: flattenedStories }
-               : list
-           )
-         );
-      }
-      
+          setSelectedProject(currProject) ;
+        }
+   
+        const project  = await reprompt(input, currProject!) as Project;
+        setSelectedProject(project);
+
+           // Flatten the nested stories structure into a single Story[] array.
+           const flattenedStories: Story[] = project.stories.map((story) => ({
+            name: story.name,
+            description: story.description,
+            acceptanceCriteria: story.acceptanceCriteria,
+            category: story.category,
+            id: story.id,
+            _id: story._id,
+          }));
+
+         setLists((prevLists) =>
+          prevLists.map((list) => ({
+            ...list,
+            stories: flattenedStories.filter((story) => story.category === list.id),
+          }))
+        );
+      };
     } catch (error) {
       console.error("Error during generation:", error);
     }

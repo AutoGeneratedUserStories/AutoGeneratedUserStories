@@ -79,7 +79,8 @@ export async function saveProject(data: { name: string; description?: string; st
     );
 
   } catch (error) {
-    return { error };
+    console.log(error);
+    // return { error };
   }
 }
 
