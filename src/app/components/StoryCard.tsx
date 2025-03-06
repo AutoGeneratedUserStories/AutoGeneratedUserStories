@@ -63,8 +63,9 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
         >
           <div className="card-body">
             <h5
-              className="card-title"
-              style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}
+              className="card-title card-link"
+              style={{ fontSize: "1.25rem", 
+                marginBottom: "0.5rem" }}
             >
               <a onClick={this.openModal} style={{ cursor: "pointer" }}>
                 {story.name}
