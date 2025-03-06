@@ -90,7 +90,8 @@ export default function ProjectView({
     setIsModalOpen(true);
   };
 
-  const handleExportClicked = async () => {
+  const exportProject = async () => {
+
   }
 
   const handleConfirm = (updatedProject: Project) => {
@@ -145,13 +146,13 @@ export default function ProjectView({
     [handleAsk]
   );
 
-  const handleExport = useCallback(
-    (event: React.FormEvent) => {
-      event.preventDefault();
-      handleExportClicked()
-    },
-    [handleExportClicked]
-  )
+  const handleExportClicked = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleExportConfirmed = () => {
+    setIsExportModalOpen(false);
+  }
 
   return (
     <div className="grid grid-cols-[1fr_10fr] gap-4">
@@ -215,7 +216,7 @@ export default function ProjectView({
               <div>
                 <button
                   type="button"
-                  onClick={handleExport}
+                  onClick={handleExportClicked}
                   className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
                 >
                   Export
