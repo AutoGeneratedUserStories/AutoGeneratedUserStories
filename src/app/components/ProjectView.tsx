@@ -79,8 +79,8 @@ export default function ProjectView({
     if (!todoList) return;
 
     const projectToEdit = {
-      name: "Example Project",
-      description: "Project generated from stories",
+      name: "New Project",
+      description: input,
       stories: todoList.stories,
     };
 
@@ -186,7 +186,7 @@ export default function ProjectView({
               />
               <button
                 type="submit"
-                className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
+                className="ml-2 rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
                 onClick={handleSubmit}
               >
                 Ask
