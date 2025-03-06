@@ -37,12 +37,12 @@ export default function ProjectView({
   const [projectList, setProjectList] = useState<Project[]>(projects);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-  const { input, handleInputChange } = useChat();
   const [draggedStory, setDraggedStory] = useState<{
     story: Story;
     sourceListId: string;
   } | null>(null);
+
+  const { input, handleInputChange } = useChat();
 
   const onDragStart = (story: Story, sourceListId: string) => {
     setDraggedStory({ story, sourceListId });
@@ -52,29 +52,62 @@ export default function ProjectView({
     event.preventDefault();
   };
 
-  const onDrop = (targetListId: string) => {
-    if (!draggedStory || targetListId == draggedStory.sourceListId) return;
-    setLists((prevLists) =>
-      prevLists.map((list) => {
-        // Remove it from the original list
-        if (list.id === draggedStory.sourceListId) {
-          return {
-            ...list,
-            stories: list.stories.filter(
-              (s) => s.name !== draggedStory.story.name
-            ),
-          };
-        }
-        // Add it to the target list
-        if (list.id === targetListId) {
-          draggedStory.story.category = list.id;
-          return { ...list, stories: [...list.stories, draggedStory.story] };
-        }
-        return list;
-      })
-    );
+  const onDrop = (targetListId: string, targetIndex?: number) => {
+    if (!draggedStory) return;
+  
+    // If reordering within the same list
+    if (targetListId === draggedStory.sourceListId) {
+      setLists((prevLists) =>
+        prevLists.map((list) => {
+          if (list.id !== targetListId) return list;
+          // Remove the dragged story from its current position
+          const filteredStories = list.stories.filter(
+            (s) => s.name !== draggedStory.story.name
+          );
+          // Insert at the new index
+          const newStories = [...filteredStories];
+          if (typeof targetIndex === "number") {
+            newStories.splice(targetIndex, 0, {
+              ...draggedStory.story,
+              category: targetListId,
+            });
+          } else {
+            newStories.push({ ...draggedStory.story, category: targetListId });
+          }
+          return { ...list, stories: newStories };
+        })
+      );
+    } else {
+      // Moving across different lists
+      setLists((prevLists) =>
+        prevLists.map((list) => {
+          if (list.id === draggedStory.sourceListId) {
+            return {
+              ...list,
+              stories: list.stories.filter(
+                (s) => s.name !== draggedStory.story.name
+              ),
+            };
+          }
+          if (list.id === targetListId) {
+            const newStories = [...list.stories];
+            if (typeof targetIndex === "number") {
+              newStories.splice(targetIndex, 0, {
+                ...draggedStory.story,
+                category: targetListId,
+              });
+            } else {
+              newStories.push({ ...draggedStory.story, category: targetListId });
+            }
+            return { ...list, stories: newStories };
+          }
+          return list;
+        })
+      );
+    }
     setDraggedStory(null);
   };
+  
 
   const handleSave = async () => {
     const allStories: Story[] = lists.reduce(
@@ -89,7 +122,6 @@ export default function ProjectView({
       id: "",
     } as Project;
 
-    // Cast so that it can set it to a Project
     setSelectedProject(projectToEdit);
     setIsModalOpen(true);
   };
@@ -103,7 +135,6 @@ export default function ProjectView({
 
   const handleSelectProject = async (project: Project) => {
     setSelectedProject(project);
-
     setLists((prevLists) =>
       prevLists.map((list) => ({
         ...list,
@@ -114,67 +145,63 @@ export default function ProjectView({
 
   const handleAsk = useCallback(async () => {
     try {
-
-      if (lists[0].stories.length == 0){
+      if (lists[0].stories.length === 0) {
         const { object } = await generate(input);
-
-      // Stream partial responses and update the cards immediately
-      for await (const partial of readStreamableValue(object)) {
-        if (partial?.stories) {
-          const newStories: Story[] = partial.stories.map((story: Story) => ({
-            name: story.name,
-            description: story.description,
-            acceptanceCriteria: story.acceptanceCriteria ?? [],
-            category: "todo",
-          }));
-          setLists((prevLists) =>
-            prevLists.map((list) =>
-              list.id === "todo"
-                ? { ...list, stories: newStories }
-                : list
-            )
-          );
+        // Stream partial responses and update the cards immediately
+        for await (const partial of readStreamableValue(object)) {
+          if (partial?.stories) {
+            const newStories: Story[] = partial.stories.map((story: Story) => ({
+              name: story.name,
+              description: story.description,
+              acceptanceCriteria: story.acceptanceCriteria ?? [],
+              category: "todo",
+            }));
+            setLists((prevLists) =>
+              prevLists.map((list) =>
+                list.id === "todo"
+                  ? { ...list, stories: newStories }
+                  : list
+              )
+            );
+          }
         }
-      }
-      }
-      else {
+      } else {
         let currProject = selectedProject;
-            // If no project exists yet, create a new one from the current lists
+        // If no project exists yet, create a new one from the current lists
         if (!currProject) {
           const allStories: Story[] = lists.reduce(
             (acc, list) => [...acc, ...list.stories],
             [] as Story[]
           );
-        
           currProject = {
             name: "Example Project",
             description: "Project generated from stories",
             stories: allStories,
           } as Project;
-
-          setSelectedProject(currProject) ;
+          setSelectedProject(currProject);
         }
-   
-        const project  = await reprompt(input, currProject!) as Project;
+        const project = await reprompt(input, currProject!) as Project;
         setSelectedProject(project);
 
-           // Flatten the nested stories structure into a single Story[] array.
-           const flattenedStories: Story[] = project.stories.map((story) => ({
-            name: story.name,
-            description: story.description,
-            acceptanceCriteria: story.acceptanceCriteria,
-            category: story.category,
-            id: story.id,
-            _id: story._id,
-          }));
+        // Flatten the nested stories structure into a single Story[] array.
+        const flattenedStories: Story[] = project.stories.map((story) => ({
+          name: story.name,
+          description: story.description,
+          acceptanceCriteria: story.acceptanceCriteria,
+          category: story.category,
+          id: story.id,
+          _id: story._id,
+        }));
 
-         setLists((prevLists) =>
+        setLists((prevLists) =>
           prevLists.map((list) => ({
             ...list,
-            stories: flattenedStories.filter((story) => story.category === list.id),
+            stories: flattenedStories.filter(
+              (story) => story.category === list.id
+            ),
           }))
         );
-      };
+      }
     } catch (error) {
       console.error("Error during generation:", error);
     }
@@ -207,7 +234,10 @@ export default function ProjectView({
               key={list.id}
               className="border p-4 rounded-lg shadow-sm bg-light flex-1"
               onDragOver={onDragOver}
-              onDrop={() => onDrop(list.id)}
+              onDrop={(e) => {
+                e.stopPropagation();
+                onDrop(list.id);
+              }}
             >
               <h2 className="font-bold text-lg mb-4">{list.name}</h2>
               {list.stories.map((story, index) => (
@@ -216,6 +246,11 @@ export default function ProjectView({
                   className="mb-4"
                   draggable
                   onDragStart={() => onDragStart(story, list.id)}
+                  onDragOver={onDragOver}
+                  onDrop={(e) => {
+                    e.stopPropagation();
+                    onDrop(list.id, index);
+                  }}
                 >
                   <StoryCard story={story} />
                 </div>
