@@ -9,7 +9,6 @@ import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
-import mongoose from "mongoose";
 
 interface ProjectViewProps {
   id: string;
@@ -36,7 +35,6 @@ export default function ProjectView({
   ]);
 
   const [projectList, setProjectList] = useState<Project[]>(projects);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -79,14 +77,16 @@ export default function ProjectView({
     const todoList = lists.find((list) => list.id === "todo");
     if (!todoList) return;
 
-    const projectToEdit = {
+    const projectToEdit: Project = {
       name: "Example Project",
       description: "Project generated from stories",
       stories: todoList.stories,
+      _id: "",
+      id: ""
     };
 
     // Cast so that it can set it to a Project
-    setSelectedProject(projectToEdit as Project);
+    setSelectedProject(projectToEdit);
     setIsModalOpen(true);
   };
 
@@ -98,8 +98,7 @@ export default function ProjectView({
   };
 
   const handleSelectProject = async (project: Project) => {
-    if (project != null)
-      setSelectedProject(project);
+    setSelectedProject(project);
 
     setLists((prevLists) =>
       prevLists.map((list) =>
@@ -133,8 +132,8 @@ export default function ProjectView({
       }
       }
       else {
-        let newProject;
-        if (selectedProject == null) {
+        let newProject: Project;
+        if (!selectedProject) {
           const todoList = lists.find((list) => list.id === "todo");
           if (!todoList) return;
           newProject = {
@@ -150,16 +149,15 @@ export default function ProjectView({
         }
         const project  = await reprompt(input, newProject!);
            // Flatten the nested stories structure into a single Story[] array.
-         const flattenedStories: Story[] = project.stories.flatMap(story => {
+         const flattenedStories: Story[] = project.stories.map(story => {
            const newStory: Story = {
                  name: story.name,
                  description: story.description,
                  acceptanceCriteria: story.acceptanceCriteria,
-                 _id: new mongoose.Types.ObjectId(),
-                 id: "", // This will be set by the post hook if applicable, or you can manually set it to _id.toString()
+                 id: "",
                } as Story;
                return newStory;
-         })
+         });
 
          //Now update the state.
          setLists(prevLists =>
@@ -169,13 +167,12 @@ export default function ProjectView({
                : list
            )
          );
-        //console.log(project.stories);
       }
       
     } catch (error) {
       console.error("Error during generation:", error);
     }
-  }, [input]);
+  }, [input, lists, selectedProject]);
 
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
@@ -258,5 +255,4 @@ export default function ProjectView({
       )}
     </div>
   );
-  
 }
