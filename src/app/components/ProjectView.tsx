@@ -85,7 +85,7 @@ export default function ProjectView({
     const projectToEdit = {
       name: "New Project",
       description: input,
-      stories: todoList.stories,
+      stories: allStories,
       id: "",
     } as Project;
 
