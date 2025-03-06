@@ -5,7 +5,7 @@ export const storySchema = z.object(
     name: z.string().describe("Name of the user story."),
     description: z.string().describe("Description of the user story."),
     acceptanceCriteria: z.array(z.string()).describe("List of acceptance criteria."),
-    category: z.string().describe("Category of the user story. Either todo, in-progress, or done."),
+    category: z.string().describe("Category of the user story. Only change it if the user asks for the category to change and MUST ALWAYS BE EXACTLY todo, in-progress, or done."),
   }
 );
 
