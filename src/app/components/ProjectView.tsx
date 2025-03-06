@@ -82,11 +82,11 @@ export default function ProjectView({
       [] as Story[]
     );
 
-    const projectToEdit: Project = {
-      name: "Example Project",
-      description: "Project generated from stories",
-      stories: allStories,
-      id: ""
+    const projectToEdit = {
+      name: "New Project",
+      description: input,
+      stories: todoList.stories,
+      id: "",
     } as Project;
 
     // Cast so that it can set it to a Project
@@ -233,7 +233,7 @@ export default function ProjectView({
               />
               <button
                 type="submit"
-                className="rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
+                className="ml-2 rounded-r bg-blue-600 px-6 py-4 text-white shadow transition-colors hover:bg-blue-700"
                 onClick={handleSubmit}
               >
                 Ask
