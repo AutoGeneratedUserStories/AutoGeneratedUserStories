@@ -36,7 +36,8 @@ export default function ProjectView({
 
   const [projectList, setProjectList] = useState<Project[]>(projects);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { input, handleInputChange } = useChat();
@@ -225,7 +226,7 @@ export default function ProjectView({
         </div>
       </div>
   
-      {isModalOpen && selectedProject && (
+      {isSaveModalOpen && selectedProject && (
         <SaveProjectModal
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}

@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { ReactNode, useState } from 'react';
 import { logout } from '../lib/actions';
 import { Project } from '../models/project';
+import { useRouter } from 'next/navigation';
 
 interface ProjectBarProps {
   username: string;
@@ -89,6 +90,12 @@ function DropdownContainer({ name, children }: { name: string; children?: ReactN
 }
 
 export default function ProjectBar({ username, projects, onSelectProject }: ProjectBarProps) {
+  const router = useRouter();
+
+  const handleSettingsRouting = () => {
+    router.push("/settings")
+  }
+
   return (
     <div
       className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border pt-4 ps-2 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5"
@@ -126,6 +133,7 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
           />
           <DropdownElement
             name="Settings"
+            onClick={handleSettingsRouting}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
