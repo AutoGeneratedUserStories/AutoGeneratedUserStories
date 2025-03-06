@@ -58,6 +58,7 @@ export default function ProjectView({
     if (!draggedStory) return;
     setLists((prevLists) =>
       prevLists.map((list) => {
+        // Remove it from the original list
         if (list.id === draggedStory.sourceListId) {
           return {
             ...list,
@@ -66,7 +67,9 @@ export default function ProjectView({
             ),
           };
         }
+        // Add it to the target list
         if (list.id === targetListId) {
+          draggedStory.story.category = list.id;
           return { ...list, stories: [...list.stories, draggedStory.story] };
         }
         return list;
@@ -102,9 +105,10 @@ export default function ProjectView({
       setSelectedProject(project);
 
     setLists((prevLists) =>
-      prevLists.map((list) =>
-        list.id === "todo" ? { ...list, stories: [...project.stories] } : list
-      )
+      prevLists.map((list) => ({
+        ...list,
+        stories: project.stories.filter((story) => story.category === list.id),
+      }))
     );
   };
 
