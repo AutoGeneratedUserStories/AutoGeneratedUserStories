@@ -68,7 +68,6 @@ export default function ProjectView({
         // Add it to the target list
         if (list.id === targetListId) {
           draggedStory.story.category = list.id;
-          console.log(draggedStory.story.category);
           return { ...list, stories: [...list.stories, draggedStory.story] };
         }
         return list;
@@ -152,7 +151,6 @@ export default function ProjectView({
             description: "Project generated from stories",
             stories: allStories,
           }as Project;
-          console.log(newProject);
           setSelectedProject( newProject) ;
         }
         else{
