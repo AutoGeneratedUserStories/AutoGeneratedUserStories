@@ -53,7 +53,7 @@ export default function ProjectView({
   };
 
   const onDrop = (targetListId: string) => {
-    if (!draggedStory) return;
+    if (!draggedStory || targetListId == draggedStory.sourceListId) return;
     setLists((prevLists) =>
       prevLists.map((list) => {
         // Remove it from the original list
