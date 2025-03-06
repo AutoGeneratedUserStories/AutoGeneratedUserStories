@@ -12,3 +12,9 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.card-link a:hover {
+  text-decoration: underline !important;
+  color:  #2f52ff !important
+}
