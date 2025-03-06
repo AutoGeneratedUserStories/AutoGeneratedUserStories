@@ -1,9 +1,9 @@
 "use server";
 
-import { streamObject } from "ai";
+import { generateObject, streamObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { createStreamableValue } from "ai/rsc";
-import { storySchema } from "./schema";
+import { projectSchema, storiesSchema, storySchema } from "./schema";
 import { Story } from "../models/story"; // Import the Story model
 import { Project, ProjectModel } from "../models/project";
 import { ActionResult } from "next/dist/server/app-render/types";
@@ -24,7 +24,7 @@ export async function generate(input: string) {
         "Your job is to take a given project description and generate every necessary user story " +
         "to take the project to completion. Also generate acceptance criteria for each user story as necessary",
       prompt: input,
-      schema: storySchema,
+      schema: storiesSchema,
     });
 
     for await (const partialObject of partialObjectStream) {
@@ -35,6 +35,18 @@ export async function generate(input: string) {
   })();
 
   return { object: stream.value };
+}
+
+export async function reprompt(input: string, project: Project) {
+    const { object } = await generateObject({
+      model: google("gemini-2.0-flash"),
+      system:
+        "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
+        "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " + JSON.stringify(project),
+      prompt: input,
+      schema: projectSchema,
+  })
+  return object;
 }
 
 
@@ -67,7 +79,8 @@ export async function saveProject(data: { name: string; description?: string; st
     );
 
   } catch (error) {
-    return { error };
+    console.log(error);
+    // return { error };
   }
 }
 

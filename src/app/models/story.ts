@@ -42,6 +42,10 @@ class Story {
   @prop({ required: true })
   public name: string;
 
+  // STRING CATEGORY DEFAULT: TODO 
+  @prop({require: true, default: "todo"})
+  public category: string;
+
   _id: mongoose.Types.ObjectId | string;
 
   id: string;

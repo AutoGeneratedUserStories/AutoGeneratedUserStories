@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, saveProject } from "../lib/actions";
+import { generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
@@ -35,7 +35,6 @@ export default function ProjectView({
   ]);
 
   const [projectList, setProjectList] = useState<Project[]>(projects);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -57,6 +56,7 @@ export default function ProjectView({
     if (!draggedStory) return;
     setLists((prevLists) =>
       prevLists.map((list) => {
+        // Remove it from the original list
         if (list.id === draggedStory.sourceListId) {
           return {
             ...list,
@@ -65,7 +65,9 @@ export default function ProjectView({
             ),
           };
         }
+        // Add it to the target list
         if (list.id === targetListId) {
+          draggedStory.story.category = list.id;
           return { ...list, stories: [...list.stories, draggedStory.story] };
         }
         return list;
@@ -75,17 +77,20 @@ export default function ProjectView({
   };
 
   const handleSave = async () => {
-    const todoList = lists.find((list) => list.id === "todo");
-    if (!todoList) return;
+    const allStories: Story[] = lists.reduce(
+      (acc, list) => [...acc, ...list.stories],
+      [] as Story[]
+    );
 
     const projectToEdit = {
       name: "New Project",
       description: input,
-      stories: todoList.stories,
-    };
+      stories: allStories,
+      id: "",
+    } as Project;
 
     // Cast so that it can set it to a Project
-    setSelectedProject(projectToEdit as Project);
+    setSelectedProject(projectToEdit);
     setIsModalOpen(true);
   };
 
@@ -97,19 +102,21 @@ export default function ProjectView({
   };
 
   const handleSelectProject = async (project: Project) => {
-    if (project != null)
-      setSelectedProject(project);
+    setSelectedProject(project);
 
     setLists((prevLists) =>
-      prevLists.map((list) =>
-        list.id === "todo" ? { ...list, stories: [...project.stories] } : list
-      )
+      prevLists.map((list) => ({
+        ...list,
+        stories: project.stories.filter((story) => story.category === list.id),
+      }))
     );
   };
 
   const handleAsk = useCallback(async () => {
     try {
-      const { object } = await generate(input);
+
+      if (lists[0].stories.length == 0){
+        const { object } = await generate(input);
 
       // Stream partial responses and update the cards immediately
       for await (const partial of readStreamableValue(object)) {
@@ -118,6 +125,7 @@ export default function ProjectView({
             name: story.name,
             description: story.description,
             acceptanceCriteria: story.acceptanceCriteria ?? [],
+            category: "todo",
           }));
           setLists((prevLists) =>
             prevLists.map((list) =>
@@ -128,10 +136,49 @@ export default function ProjectView({
           );
         }
       }
+      }
+      else {
+        let currProject = selectedProject;
+            // If no project exists yet, create a new one from the current lists
+        if (!currProject) {
+          const allStories: Story[] = lists.reduce(
+            (acc, list) => [...acc, ...list.stories],
+            [] as Story[]
+          );
+        
+          currProject = {
+            name: "Example Project",
+            description: "Project generated from stories",
+            stories: allStories,
+          } as Project;
+
+          setSelectedProject(currProject) ;
+        }
+   
+        const project  = await reprompt(input, currProject!) as Project;
+        setSelectedProject(project);
+
+           // Flatten the nested stories structure into a single Story[] array.
+           const flattenedStories: Story[] = project.stories.map((story) => ({
+            name: story.name,
+            description: story.description,
+            acceptanceCriteria: story.acceptanceCriteria,
+            category: story.category,
+            id: story.id,
+            _id: story._id,
+          }));
+
+         setLists((prevLists) =>
+          prevLists.map((list) => ({
+            ...list,
+            stories: flattenedStories.filter((story) => story.category === list.id),
+          }))
+        );
+      };
     } catch (error) {
       console.error("Error during generation:", error);
     }
-  }, [input]);
+  }, [input, lists, selectedProject]);
 
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
@@ -214,5 +261,4 @@ export default function ProjectView({
       )}
     </div>
   );
-  
 }
