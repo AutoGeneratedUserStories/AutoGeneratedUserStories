@@ -9,6 +9,7 @@ import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
+import Toast from "./Toast";
 
 interface ProjectViewProps {
   id: string;
@@ -41,10 +42,22 @@ export default function ProjectView({
     story: Story;
     sourceListId: string;
   } | null>(null);
-
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
-
   const { input, handleInputChange } = useChat();
+
+  // Toast state now holds a message and its visibility status.
+  const [toast, setToast] = useState<{ message: string; show: boolean }>({
+    message: "",
+    show: false,
+  });
+
+  // Reusable function to show a toast message.
+  const showToastMessage = (message: string, duration = 3000) => {
+    setToast({ message, show: true });
+    setTimeout(() => {
+      setToast({ message: "", show: false });
+    }, duration);
+  };
 
   const onDragStart = (story: Story, sourceListId: string) => {
     setDraggedStory({ story, sourceListId });
@@ -128,6 +141,18 @@ export default function ProjectView({
     saveProject(updatedProject);
     setProjectList((prevProjects) => [...prevProjects, updatedProject]);
     setIsModalOpen(false);
+    showToastMessage("Project saved successfully!");
+  };
+
+  const handleDeleteStory = (storyToDelete: Story) => {
+    setLists((prevLists) =>
+      prevLists.map((list) => ({
+        ...list,
+        stories: list.stories.filter(
+          (story) => story.name !== storyToDelete.name
+        ),
+      }))
+    );
   };
 
   const handleSelectProject = async (project: Project) => {
@@ -135,8 +160,27 @@ export default function ProjectView({
     setLists((prevLists) =>
       prevLists.map((list) => ({
         ...list,
-        stories: project.stories.filter((story) => story.category === list.id),
+        stories: project.stories.filter(
+          (story) => story.category === list.id
+        ),
       }))
+    );
+  };
+
+  // Function to add a new user story to the "To Do" list.
+  const handleAddStory = () => {
+    const newStory: Story = {
+      name: "New Story",
+      description: "",
+      acceptanceCriteria: [],
+      category: "todo",
+    };
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === "todo"
+          ? { ...list, stories: [...list.stories, newStory] }
+          : list
+      )
     );
   };
 
@@ -176,6 +220,8 @@ export default function ProjectView({
           } as Project;
           setSelectedProject(currProject);
         }
+        // Notify that reprompting has started.
+        showToastMessage("Reprompting...", 3000);
         const project = (await reprompt(input, currProject!)) as Project;
         setSelectedProject(project);
 
@@ -196,6 +242,8 @@ export default function ProjectView({
             ),
           }))
         );
+        // Notify that reprompting is complete.
+        showToastMessage("Reprompt complete!", 3000);
       }
     } catch (error) {
       console.error("Error during generation:", error);
@@ -226,8 +274,17 @@ export default function ProjectView({
         />
       </div>
       <div className="w-full h-full overflow-auto pb-24">
-        <div className="ps-4 pt-4">
-          <h2>{selectedProject?.name ?? "Unsaved Project"}</h2>
+        <div className="ps-4 pt-4 flex items-center">
+          <h2 className="mr-4">
+            {selectedProject?.name ?? "Unsaved Project"}
+          </h2>
+          {/* + Button to add a new user story */}
+          <button
+            onClick={handleAddStory}
+            className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+          >
+            +
+          </button>
         </div>
 
         {/* Toggle Button */}
@@ -238,7 +295,9 @@ export default function ProjectView({
             }
             className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
           >
-            {viewMode === "list" ? "Return to Grid View" : "Track Project Progress"}
+            {viewMode === "list"
+              ? "Return to Grid View"
+              : "Track Project Progress"}
           </button>
         </div>
 
@@ -268,7 +327,7 @@ export default function ProjectView({
                       onDrop(list.id, index);
                     }}
                   >
-                    <StoryCard story={story} />
+                    <StoryCard story={story} onDelete={handleDeleteStory}/>
                   </div>
                 ))}
               </div>
@@ -281,7 +340,7 @@ export default function ProjectView({
                 key={`${story.name}-${index}`}
                 className="p-6 rounded-lg shadow-md bg-gray-50 hover:shadow-lg transition-shadow hover:scale-105 transform duration-200"
               >
-                <StoryCard story={story} />
+                <StoryCard story={story} onDelete={handleDeleteStory}/>
               </div>
             ))}
           </div>
@@ -320,6 +379,15 @@ export default function ProjectView({
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
+        />
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          duration={3000}
+          onClose={() => setToast({ message: "", show: false })}
         />
       )}
     </div>

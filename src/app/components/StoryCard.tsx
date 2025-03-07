@@ -1,10 +1,11 @@
-import "bootstrap/dist/css/bootstrap.min.css"; // Correct import for Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Story } from "../models/story";
 import React from "react";
 import CardModal from "./CardModal";
 
 interface StoryCardProps {
   story: Story;
+  onDelete?: (story: Story) => void;
 }
 
 interface StoryCardState {
@@ -35,6 +36,12 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
     this.closeModal();
   };
 
+  handleDeleteClick = () => {
+    if (this.props.onDelete) {
+      this.props.onDelete(this.props.story);
+    }
+  };
+
   render() {
     const { story } = this.props;
     const { showModal } = this.state;
@@ -51,6 +58,7 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
         <div
           className="card"
           style={{
+            position: "relative", // Needed for absolute positioning of the delete button
             display: "flex",
             flexDirection: "column",
             width: "100%",
@@ -61,11 +69,31 @@ class StoryCard extends React.Component<StoryCardProps, StoryCardState> {
             minHeight: "200px",
           }}
         >
+          {/* Delete Button in the top right corner */}
+          <button
+            onClick={this.handleDeleteClick}
+            style={{
+              position: "absolute",
+              top: "0.5rem",
+              right: "0.5rem",
+              background: "transparent",
+              border: "none",
+              fontSize: "1.25rem",
+              cursor: "pointer",
+              color: "#dc3545", // Bootstrap danger color
+            }}
+            title="Delete Story"
+          >
+            &times;
+          </button>
+          
           <div className="card-body">
             <h5
               className="card-title card-link"
-              style={{ fontSize: "1.25rem", 
-                marginBottom: "0.5rem" }}
+              style={{
+                fontSize: "1.25rem",
+                marginBottom: "0.5rem",
+              }}
             >
               <a onClick={this.openModal} style={{ cursor: "pointer" }}>
                 {story.name}
