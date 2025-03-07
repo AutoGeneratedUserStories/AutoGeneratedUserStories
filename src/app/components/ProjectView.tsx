@@ -9,6 +9,7 @@ import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
+import ExportModal from "./ExportModal";
 
 interface ProjectViewProps {
   id: string;
@@ -281,6 +282,15 @@ export default function ProjectView({
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
+        />
+      )}
+      
+      {isExportModalOpen && selectedProject && (
+        <ExportModal
+          project={selectedProject}
+          board={""}
+          onClose={() => setIsExportModalOpen(false)}
+          onConfirm={handleExportClicked}
         />
       )}
     </div>
