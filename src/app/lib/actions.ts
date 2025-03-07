@@ -63,12 +63,6 @@ export async function saveSettings(data: { geminiKey?: string, trelloApiKey?: st
 
     const username = user.username;
 
-    const userUpdates: User = {
-      geminiKey,
-      trelloApiKey,
-      trelloApiToken,
-    } as User;
-
     // Update the user document to embed the new project.
     const updatedUser = await UserModel.findOneAndUpdate(
       { username },
