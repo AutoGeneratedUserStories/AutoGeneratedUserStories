@@ -1,26 +1,34 @@
 "use client";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { ReactNode, useState } from 'react';
-import { logout } from '../lib/actions';
-import { Project } from '../models/project';
+import "bootstrap/dist/css/bootstrap.min.css";
+import React, { ReactNode, useState } from "react";
+import { logout } from "../lib/actions";
+import { Project } from "../models/project";
+import { User } from "../models/user";
+import Link from "next/link";
 
 interface ProjectBarProps {
-  username: string;
+  user: User;
   projects: Project[];
   onSelectProject: (project: Project) => void;
 }
 
-function DropdownElement({ name, icon, onClick }: { name: string; icon: ReactNode; onClick?: () => void }) {
+function DropdownElement({
+  name,
+  icon,
+  onClick,
+}: {
+  name: string;
+  icon: ReactNode;
+  onClick?: () => void;
+}) {
   return (
     <div
       role="button"
       onClick={onClick}
-      className="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-gray-200 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+      className="focus:text-blue-gray-900 active:bg-blue-gray-50 active:text-blue-gray-900 flex w-full items-center rounded-lg p-3 text-start leading-tight outline-none transition-all hover:bg-gray-200 focus:bg-opacity-80 active:bg-opacity-80"
     >
-      <div className="mr-4 place-items-center">
-        {icon}
-      </div>
+      <div className="mr-4 place-items-center">{icon}</div>
       {name}
     </div>
   );
@@ -33,7 +41,7 @@ function ProjectIcon() {
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
-      className="w-5 h-5"
+      className="h-5 w-5"
     >
       <path
         fillRule="evenodd"
@@ -49,24 +57,24 @@ function DropdownContainer({ name, children }: { name: string; children?: ReactN
 
   return (
     <div>
-      <div className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700">
+      <div className="text-blue-gray-700 flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal">
         <div className="relative block w-full">
           <div
             role="button"
-            className="flex items-center w-full p-0 leading-tight hover:bg-gray-200 transition-all rounded-lg outline-none bg-blue-gray-50/50 text-start text-blue-gray-700 hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
+            className="bg-blue-gray-50/50 text-blue-gray-700 hover:bg-blue-gray-50 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:text-blue-gray-900 active:bg-blue-gray-50 active:text-blue-gray-900 flex w-full items-center rounded-lg p-0 text-start leading-tight outline-none transition-all hover:bg-gray-200 hover:bg-opacity-80 focus:bg-opacity-80 active:bg-opacity-80"
           >
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center justify-between w-full p-3 font-sans text-xl antialiased font-semibold leading-snug text-left transition-colors border-b-0 select-none border-b-blue-gray-100 text-blue-gray-900 hover:text-blue-gray-900"
+              className="border-b-blue-gray-100 text-blue-gray-900 hover:text-blue-gray-900 flex w-full select-none items-center justify-between border-b-0 p-3 text-left font-sans text-xl font-semibold leading-snug antialiased transition-colors"
             >
               <div className="mr-4 place-items-center">
                 <ProjectIcon />
               </div>
-              <span className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed text-blue-gray-900">
+              <span className="text-blue-gray-900 mr-auto block font-sans text-base font-normal leading-relaxed antialiased">
                 {name}
               </span>
-              <span className={isOpen ? '' : 'rotate-180'}>
+              <span className={isOpen ? "" : "rotate-180"}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -74,27 +82,29 @@ function DropdownContainer({ name, children }: { name: string; children?: ReactN
                   strokeWidth="2.5"
                   stroke="currentColor"
                   aria-hidden="true"
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
                 </svg>
               </span>
             </button>
           </div>
         </div>
       </div>
-      <div className={isOpen ? 'flex flex-col pl-7' : 'hidden'}>{children}</div>
+      <div className={isOpen ? "flex flex-col pl-7" : "hidden"}>{children}</div>
     </div>
   );
 }
 
-export default function ProjectBar({ username, projects, onSelectProject }: ProjectBarProps) {
+export default function ProjectBar({ user, projects, onSelectProject }: ProjectBarProps) {
   return (
-    <div
-      className="relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border pt-4 ps-2 text-gray-700 shadow-xl ring-2 shadow-blue-gray-900/5"
-    >
-      <h1 className="text-xl font-bold text-center mb-4">User Story Generator</h1>
-        <div className="overflow-y-auto overflow-x-hidden">
+    <div className="shadow-blue-gray-900/5 relative flex h-[calc(100vh-2rem)] w-full max-w-[20rem] flex-col rounded-xl bg-white bg-clip-border ps-2 pt-4 text-gray-700 shadow-xl ring-2">
+      <h1 className="mb-4 text-center text-xl font-bold">User Story Generator</h1>
+      <div className="overflow-y-auto overflow-x-hidden">
         <DropdownContainer name="Projects">
           {projects.map((project, index) => (
             <DropdownElement
@@ -107,14 +117,14 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
         </DropdownContainer>
         <DropdownContainer name="Dashboard">
           <DropdownElement
-            name={username}
+            name={user.username}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 aria-hidden="true"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <path
                   fillRule="evenodd"
@@ -124,24 +134,26 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
               </svg>
             }
           />
-          <DropdownElement
-            name="Settings"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-                className="w-5 h-5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 00-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 00-2.282.819l-.922 1.597a1.875 1.875 0 00.432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 000 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 00-.432 2.385l.922 1.597a1.875 1.875 0 002.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 002.28-.819l.923-1.597a1.875 1.875 0 00-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 000-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 00-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 00-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 00-1.85-1.567h-1.843zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            }
-          />
+          <Link href="/settings" className="no-underline text-gray-700">
+            <DropdownElement
+              name="Settings"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 00-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 00-2.282.819l-.922 1.597a1.875 1.875 0 00.432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 000 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 00-.432 2.385l.922 1.597a1.875 1.875 0 002.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 002.28-.819l.923-1.597a1.875 1.875 0 00-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 000-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 00-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 00-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 00-1.85-1.567h-1.843zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              }
+            />
+          </Link>
           <DropdownElement
             name="Sign out"
             icon={
@@ -150,7 +162,7 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 aria-hidden="true"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <path
                   fillRule="evenodd"

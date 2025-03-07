@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import { validateRequest, lucia } from "./auth";
 import { UserModel } from "../models/user";
 import mongoose from "mongoose";
+import TrelloService from "../service/TrelloService";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -38,19 +39,89 @@ export async function generate(input: string) {
 }
 
 export async function reprompt(input: string, project: Project) {
-    const { object } = await generateObject({
-      model: google("gemini-2.0-flash"),
-      system:
-        "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
-        "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " + JSON.stringify(project),
-      prompt: input,
-      schema: projectSchema,
-  })
+  const { object } = await generateObject({
+    model: google("gemini-2.0-flash"),
+    system:
+      "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
+      "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " +
+      JSON.stringify(project),
+    prompt: input,
+    schema: projectSchema,
+  });
   return object;
 }
 
+export async function exportProject(project: Project) {
+  try {
+    const { user } = await validateRequest();
+    if (!user) {
+      return {
+        error: "Unauthorized",
+      };
+    }
+    const service = new TrelloService(user.trelloApiKey, user.trelloApiToken);
+    const data = await service.createBoard(project.name);
 
-export async function saveProject(data: { name: string; description?: string; stories: Story[]}) {
+    if (!data) {
+      return {
+        error: "Failed to create board",
+      };
+    }
+
+    const toDoData = await service.createList("To Do", data.id);
+    const inProgressData = await service.createList("In Progress", data.id);
+    const doneData = await service.createList("Done", data.id);
+
+    project.stories.forEach(async (story: Story) => {
+      let cardData;
+      if (story.category === "todo") {
+        cardData = await service.createCard(toDoData.id, story.name, story.description);
+      } else if (story.category === "in-progress") {
+        cardData = await service.createCard(inProgressData.id, story.name, story.description);
+      } else {
+        cardData = await service.createCard(doneData.id, story.name, story.description);
+      }
+      const checkListData = await service.CreateChecklist(cardData.id);
+      story.acceptanceCriteria?.forEach(async (acceptanceCriteria: string) => {
+        service.addToChecklist(checkListData.id, acceptanceCriteria);
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function saveSettings(data: {
+  geminiKey?: string;
+  trelloApiKey?: string;
+  trelloApiToken?: string;
+}) {
+  try {
+    const { user } = await validateRequest();
+    if (!user) {
+      return {
+        error: "Unauthorized",
+      };
+    }
+
+    const { geminiKey, trelloApiKey, trelloApiToken } = data;
+
+    const username = user.username;
+
+    // Update the user document to embed the new project.
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { username },
+      {
+        $set: { geminiKey: geminiKey, trelloApiKey: trelloApiKey, trelloApiToken: trelloApiToken },
+      },
+      { new: true }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function saveProject(data: { name: string; description?: string; stories: Story[] }) {
   try {
     const { user } = await validateRequest();
     if (!user) {
@@ -60,7 +131,7 @@ export async function saveProject(data: { name: string; description?: string; st
     }
 
     const { name, description, stories } = data;
-  
+
     const username = user.username;
 
     const newProject: Project = {
@@ -77,7 +148,6 @@ export async function saveProject(data: { name: string; description?: string; st
       { $push: { projects: newProject } },
       { new: true }
     );
-
   } catch (error) {
     console.log(error);
     // return { error };
@@ -85,21 +155,17 @@ export async function saveProject(data: { name: string; description?: string; st
 }
 
 export async function logout(): Promise<ActionResult> {
-  'use server';
+  "use server";
   const { session } = await validateRequest();
   if (!session) {
     return {
-      error: 'Unauthorized',
+      error: "Unauthorized",
     };
   }
- 
+
   await lucia.invalidateSession(session.id);
- 
+
   const sessionCookie = lucia.createBlankSessionCookie();
-  (await cookies()).set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-  return redirect('/login');
+  (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  return redirect("/login");
 }

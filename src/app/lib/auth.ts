@@ -7,6 +7,9 @@ import { adapter } from '../models/session';
 interface UserAttributes {
   username: string;
   projects: string[];
+  geminiKey: string;
+  trelloApiKey: string;
+  trelloApiToken: string;
 }
 
 export const lucia = new Lucia(adapter, {
@@ -18,7 +21,10 @@ export const lucia = new Lucia(adapter, {
   getUserAttributes: (attributes: UserAttributes) => {
     return {
       username: attributes.username,
-      projects: attributes.projects
+      projects: attributes.projects,
+      geminiKey: attributes.geminiKey,
+      trelloApiKey: attributes.trelloApiKey,
+      trelloApiToken: attributes.trelloApiToken,
     };
   },
 });

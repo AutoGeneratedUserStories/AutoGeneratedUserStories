@@ -12,7 +12,7 @@ export default async function Chat() {
 
   return (
       <div className="flex justify-center ps-4 h-[97vh] pb-5">
-        <ProjectView stories={[]} username={user.username} projects={JSON.parse(JSON.stringify(user.projects))}/>
+        <ProjectView stories={[]} user={JSON.parse(JSON.stringify(user)) } projects={JSON.parse(JSON.stringify(user.projects))}/>
       </div>
   );
 }
