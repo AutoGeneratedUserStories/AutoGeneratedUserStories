@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import { validateRequest, lucia } from "./auth";
 import { UserModel } from "../models/user";
 import mongoose from "mongoose";
+import { User } from "lucia";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -38,19 +39,49 @@ export async function generate(input: string) {
 }
 
 export async function reprompt(input: string, project: Project) {
-    const { object } = await generateObject({
-      model: google("gemini-2.0-flash"),
-      system:
-        "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
-        "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " + JSON.stringify(project),
-      prompt: input,
-      schema: projectSchema,
+  const { object } = await generateObject({
+    model: google("gemini-2.0-flash"),
+    system:
+      "Your job is to take this existing project and adjust the user stories based on user input. Return all" +
+      "of the user stories you edited along with the unchanged user stories in the same order. Here is the project: " + JSON.stringify(project),
+    prompt: input,
+    schema: projectSchema,
   })
   return object;
 }
 
+export async function saveSettings(data: { geminiKey?: string, trelloApiKey?: string, trelloApiToken?: string }) {
+  try {
+    const { user } = await validateRequest();
+    if (!user) {
+      return {
+        error: "Unauthorized",
+      };
+    }
 
-export async function saveProject(data: { name: string; description?: string; stories: Story[]}) {
+    const { geminiKey, trelloApiKey, trelloApiToken } = data;
+
+    const username = user.username;
+
+    const userUpdates: User = {
+      geminiKey,
+      trelloApiKey,
+      trelloApiToken,
+    } as User;
+
+    // Update the user document to embed the new project.
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { username },
+      { $set: { geminiKey: geminiKey, trelloApiKey: trelloApiKey, trelloApiToken: trelloApiToken } },
+      { new: true }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
+export async function saveProject(data: { name: string; description?: string; stories: Story[] }) {
   try {
     const { user } = await validateRequest();
     if (!user) {
@@ -60,7 +91,7 @@ export async function saveProject(data: { name: string; description?: string; st
     }
 
     const { name, description, stories } = data;
-  
+
     const username = user.username;
 
     const newProject: Project = {
@@ -92,9 +123,9 @@ export async function logout(): Promise<ActionResult> {
       error: 'Unauthorized',
     };
   }
- 
+
   await lucia.invalidateSession(session.id);
- 
+
   const sessionCookie = lucia.createBlankSessionCookie();
   (await cookies()).set(
     sessionCookie.name,
