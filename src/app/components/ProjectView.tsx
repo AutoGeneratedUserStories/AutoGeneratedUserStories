@@ -291,25 +291,29 @@ export default function ProjectView({
       {/* Floating Ask Bar */}
       <form
         onSubmit={handleSubmit}
-        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-white/50 backdrop-blur-md shadow-2xl rounded-full px-6 py-4 flex items-center z-50 border border-white/30"
+        className="fixed bottom-2 left-1/2 transform -translate-x-1/2 w-full max-w-4xl bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex items-end z-50 border border-white/20"
       >
-        <input
-          type="text"
-          className="flex-1 bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2"
+        <textarea
+          className="w-full bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2 ps"
+          style={{height: "auto", resize: 'none', overflow: "hidden"}}
           value={input}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            e.target.style.height = "auto"; //These two lines scale the ask bar to how much text is input
+            e.target.style.height = `${e.target.scrollHeight}px`;
+            handleInputChange(e);
+          }}
           placeholder="Describe your project..."
         />
         <button
           type="submit"
-          className="ml-4 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+          className="ml-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
         >
           Ask
         </button>
         <button
           type="button"
           onClick={handleSave}
-          className="ml-4 rounded-full bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+          className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
         >
           Save
         </button>
