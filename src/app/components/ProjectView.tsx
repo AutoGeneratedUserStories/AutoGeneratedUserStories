@@ -336,7 +336,9 @@ export default function ProjectView({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
+          // Grid view
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4"> 
+          
             {allStories.map((story, index) => (
               <div
                 key={`${story.name}-${index}`}
@@ -416,13 +418,13 @@ export default function ProjectView({
         )}
       </div>
 
-      {isModalOpen && selectedProject && (
+      {/* {isModalOpen && selectedProject && (
         <SaveProjectModal
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
         />
-      )}
+      )} */}
 
       {/* Toast Notification */}
       {toast.show && (

@@ -1,5 +1,5 @@
-import "bootstrap/dist/css/bootstrap.min.css"; // Correct import for Bootstrap CSS
-import React, { useState } from "react";
+import React from "react";
+import ReactDOM from "react-dom";
 import { Story } from "../models/story";
 
 interface CardModalProps {
@@ -9,86 +9,54 @@ interface CardModalProps {
 }
 
 export default function CardModal({ story, onClose, onSave }: CardModalProps) {
-  const [editedName, setEditedName] = useState(story.name);
-  const [editedDescription, setEditedDescription] = useState(story.description);
-  const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState<string[]>(story.acceptanceCriteria || []);
-
-  const handleCriteriaUpdate = (index: number, updatedCriteria: string) => {
-    const newCriteria = [...editedAcceptanceCriteria];
-    newCriteria[index] = updatedCriteria;
-    setEditedAcceptanceCriteria(newCriteria);
-  };
-
-  console.log("Story received:", story);
-  console.log("Acceptance criteria:", editedAcceptanceCriteria);
-
-  const handleSave = () => {
-    const updatedStory: Story = {
-      ...story,
-      name: editedName,
-      description: editedDescription,
-      acceptanceCriteria: editedAcceptanceCriteria,
-    };
-    onSave(updatedStory);
-  };
-
-  return (
+  const modalContent = (
     <div
       className="modal fade show"
-      id="exampleModal"
-      style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }} // Display modal with backdrop
+      style={{
+        display: "block",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+      }}
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Edit Story</h5>
-            <button type="button" className="close pl-2" onClick={onClose} aria-label="Close">
+            <button
+              type="button"
+              className="close pl-2"
+              onClick={onClose}
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div className="modal-body">
             <form>
-              {/* Editable field for the story name */}
               <div className="form-group pb-4">
                 <label htmlFor="storyName">Name</label>
                 <input
                   type="text"
                   className="form-control"
                   id="storyName"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
+                  value={story.name}
+                  onChange={(e) => {}}
                 />
               </div>
-              {/* Editable field for the story description */}
               <div className="form-group pb-4">
                 <label htmlFor="storyDescription">Description</label>
                 <textarea
                   className="form-control"
                   id="storyDescription"
                   rows={3}
-                  value={editedDescription}
-                  onChange={(e) => setEditedDescription(e.target.value)}
+                  value={story.description}
+                  onChange={(e) => {}}
                 ></textarea>
               </div>
-              {/* Editable field for the Acceptance Criteria */}
-              <div className="pb-2">
-              {editedAcceptanceCriteria.map((criteria, index) => (
-                <div key={index}>
-                  <label className="pt-2" htmlFor={`acceptanceCriteria-${index}`}>Acceptance Criteria {index + 1}</label>
-                  <textarea
-                    className="form-control"
-                    id={`acceptanceCriteria-${index}`}
-                    rows={3}
-                    value={criteria}
-                    onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
-                  ></textarea>
-                </div>
-              ))}
-              </div>
+              {/* Additional fields for acceptance criteria */}
             </form>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-primary" onClick={handleSave}>
+            <button type="button" className="btn btn-primary" onClick={() => onSave(story)}>
               Save changes
             </button>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
@@ -99,4 +67,6 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 }
