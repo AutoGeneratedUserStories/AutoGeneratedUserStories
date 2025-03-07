@@ -5,9 +5,10 @@ import React, { ReactNode, useState } from 'react';
 import { logout } from '../lib/actions';
 import { Project } from '../models/project';
 import { useRouter } from 'next/navigation';
+import { User } from '../models/user';
 
 interface ProjectBarProps {
-  username: string;
+  user: User;
   projects: Project[];
   onSelectProject: (project: Project) => void;
 }
@@ -89,7 +90,7 @@ function DropdownContainer({ name, children }: { name: string; children?: ReactN
   );
 }
 
-export default function ProjectBar({ username, projects, onSelectProject }: ProjectBarProps) {
+export default function ProjectBar({ user, projects, onSelectProject }: ProjectBarProps) {
   const router = useRouter();
 
   const handleSettingsRouting = () => {
@@ -114,7 +115,7 @@ export default function ProjectBar({ username, projects, onSelectProject }: Proj
         </DropdownContainer>
         <DropdownContainer name="Dashboard">
           <DropdownElement
-            name={username}
+            name={user.username}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"

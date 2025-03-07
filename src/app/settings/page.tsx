@@ -2,14 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { User } from "../models/user";
 
-export default function SettingsPage() {
+interface SettingsProps {
+  user: User;
+  onSave: (updatedUser: User) => void;
+}
+
+export default function SettingsPage({}: SettingsProps) {
   const [settings, setSettings] = useState({
     geminiApiKey: "",
     trelloApiKey: "",
     trelloApiToken: "",
   });
-  
 
   const router = useRouter();
 
@@ -23,6 +28,15 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
+    const updatedUser: User = {
+      geminiKey: settings.geminiApiKey,
+      trelloApiKey: settings.trelloApiKey,
+      trelloApiToken: settings.trelloApiToken,
+    } as User
+   // onSave(updatedUser)
+    console.log("api key:", updatedUser.trelloApiKey)
+    console.log("api token:", updatedUser.trelloApiToken)
+    console.log("gemini key:", updatedUser.geminiKey)
     alert("Settings saved!");
   };
 

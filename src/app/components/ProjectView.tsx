@@ -10,6 +10,7 @@ import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
 import ExportModal from "./ExportModal";
+import { User } from "../models/user";
 
 interface ProjectViewProps {
   id: string;
@@ -19,13 +20,13 @@ interface ProjectViewProps {
 }
 
 interface ProjectViewComponentProps {
-  username: string;
+  user: User;
   projects: Project[];
   stories: Story[];
 }
 
 export default function ProjectView({
-  username,
+  user,
   projects,
   stories: initialStories,
 }: ProjectViewComponentProps) {
@@ -208,7 +209,7 @@ export default function ProjectView({
     <div className="grid grid-cols-[1fr_10fr] gap-4">
       <div className="h-full pt-4">
         <ProjectBar
-          username={username}
+          user={user}
           projects={projectList}
           onSelectProject={handleSelectProject}
         />
