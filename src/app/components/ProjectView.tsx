@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, reprompt, saveProject } from "../lib/actions";
+import { exportProject, generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
@@ -98,10 +98,6 @@ export default function ProjectView({
     setSelectedProject(projectToEdit);
     setIsModalOpen(true);
   };
-
-  const exportProject = async () => {
-
-  }
 
   const handleConfirm = (updatedProject: Project) => {
     setSelectedProject(updatedProject);
@@ -202,6 +198,8 @@ export default function ProjectView({
   };
 
   const handleExportConfirmed = () => {
+    exportProject(selectedProject!)
+    alert("Project has been exported to Trello!")
     setIsExportModalOpen(false);
   }
 
@@ -291,7 +289,7 @@ export default function ProjectView({
           project={selectedProject}
           board={""}
           onClose={() => setIsExportModalOpen(false)}
-          onConfirm={handleExportClicked}
+          onConfirm={handleExportConfirmed}
         />
       )}
     </div>

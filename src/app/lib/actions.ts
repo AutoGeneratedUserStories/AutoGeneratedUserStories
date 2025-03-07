@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import { validateRequest, lucia } from "./auth";
 import { UserModel } from "../models/user";
 import mongoose from "mongoose";
-import { User } from "lucia";
+import TrelloService from "../service/TrelloService";
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
@@ -48,6 +48,42 @@ export async function reprompt(input: string, project: Project) {
     schema: projectSchema,
   })
   return object;
+}
+
+export async function exportProject(project: Project) {
+  try {
+    const { user } = await validateRequest();
+    if (!user) {
+      return {
+        error: "Unauthorized",
+      };
+    }
+    const service = new TrelloService(user.trelloApiKey, user.trelloApiToken)
+    const data = await service.createBoard(project.name)
+
+    const toDoData = await service.createList("To Do", data.id)
+    const inProgressData = await service.createList("In Progress", data.id)
+    const doneData = await service.createList("Done", data.id)
+
+    project.stories.forEach(async (story: Story) => {
+      let cardData;
+      if (story.category === "todo") {
+        cardData = await service.createCard(toDoData.id, story.name, story.description)
+      } else if (story.category === "in-progress") {
+        cardData = await service.createCard(inProgressData.id, story.name, story.description)
+      } else {
+        cardData = await service.createCard(doneData.id, story.name, story.description)
+      }
+      const checkListData = await service.CreateChecklist(cardData.id)
+      story.acceptanceCriteria?.forEach(async (acceptanceCriteria: string) => {
+        service.addToChecklist(checkListData.id, acceptanceCriteria)
+      })
+
+    })
+  }
+  catch (error) {
+    console.log(error)
+  }
 }
 
 export async function saveSettings(data: { geminiKey?: string, trelloApiKey?: string, trelloApiToken?: string }) {
