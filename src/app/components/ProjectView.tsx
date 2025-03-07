@@ -43,6 +43,7 @@ export default function ProjectView({
   } | null>(null);
 
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
+  const [isAskBarExpanded, setIsAskBarExpanded] = useState(true);
 
   const { input, handleInputChange } = useChat();
 
@@ -289,35 +290,71 @@ export default function ProjectView({
       </div>
 
       {/* Floating Ask Bar */}
-      <form
-        onSubmit={handleSubmit}
-        className="fixed bottom-2 left-1/2 transform -translate-x-1/2 w-full max-w-4xl bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex items-end z-50 border border-white/20"
-      >
-        <textarea
-          className="w-full bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2 ps"
-          style={{height: "auto", resize: 'none', overflow: "hidden"}}
-          value={input}
-          onChange={(e) => {
-            e.target.style.height = "auto"; //These two lines scale the ask bar to how much text is input
-            e.target.style.height = `${e.target.scrollHeight}px`;
-            handleInputChange(e);
-          }}
-          placeholder="Describe your project..."
-        />
+      <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2 w-full max-w-4xl z-50">
+        {/* Toggle Button (Arrow and Label) */}
         <button
-          type="submit"
-          className="ml-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+          onClick={() => setIsAskBarExpanded(!isAskBarExpanded)}
+          className="w-full flex justify-center items-center bg-transparent text-gray-700 hover:text-gray-900 transition-colors gap-2"
         >
-          Ask
+          {/* Label (Visible only when collapsed) */}
+          {!isAskBarExpanded && (
+            <span className="text-sm font-medium text-gray-600">
+              Edit using AI Prompts
+            </span>
+          )}
+
+          {/* Arrow Icon */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`h-6 w-6 transform transition-transform ${
+              isAskBarExpanded ? "rotate-0" : "rotate-180"
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
         </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
-        >
-          Save
-        </button>
-      </form>
+
+        {/* Ask Bar Form */}
+        {isAskBarExpanded && (
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex items-end border border-white/20 mt-2"
+          >
+            <textarea
+              className="w-full bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2 ps"
+              style={{ height: "auto", resize: "none", overflow: "hidden" }}
+              value={input}
+              onChange={(e) => {
+                e.target.style.height = "auto"; // These two lines scale the ask bar to how much text is input
+                e.target.style.height = `${e.target.scrollHeight}px`;
+                handleInputChange(e);
+              }}
+              placeholder="Describe your project..."
+            />
+            <button
+              type="submit"
+              className="ml-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+            >
+              Ask
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+            >
+              Save
+            </button>
+          </form>
+        )}
+      </div>
 
       {isModalOpen && selectedProject && (
         <SaveProjectModal
