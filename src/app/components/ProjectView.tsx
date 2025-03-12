@@ -3,12 +3,14 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, reprompt, saveProject } from "../lib/actions";
+import { exportProject, generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
+import ExportModal from "./ExportModal";
+import { User } from "../models/user";
 
 interface ProjectViewProps {
   id: string;
@@ -18,13 +20,13 @@ interface ProjectViewProps {
 }
 
 interface ProjectViewComponentProps {
-  username: string;
+  user: User;
   projects: Project[];
   stories: Story[];
 }
 
 export default function ProjectView({
-  username,
+  user,
   projects,
   stories: initialStories,
 }: ProjectViewComponentProps) {
@@ -35,7 +37,10 @@ export default function ProjectView({
   ]);
 
   const [projectList, setProjectList] = useState<Project[]>(projects);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [isSaveModalOpen, setIsModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { input, handleInputChange } = useChat();
@@ -188,11 +193,21 @@ export default function ProjectView({
     [handleAsk]
   );
 
+  const handleExportClicked = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleExportConfirmed = () => {
+    exportProject(selectedProject!)
+    alert("Project has been exported to Trello!")
+    setIsExportModalOpen(false);
+  }
+
   return (
     <div className="grid grid-cols-[1fr_10fr] gap-4">
       <div className="h-full pt-4">
         <ProjectBar
-          username={username}
+          user={user}
           projects={projectList}
           onSelectProject={handleSelectProject}
         />
@@ -247,16 +262,34 @@ export default function ProjectView({
                   Save
                 </button>
               </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={handleExportClicked}
+                  className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+                >
+                  Export
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
   
-      {isModalOpen && selectedProject && (
+      {isSaveModalOpen && selectedProject && (
         <SaveProjectModal
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
+        />
+      )}
+      
+      {isExportModalOpen && selectedProject && (
+        <ExportModal
+          project={selectedProject}
+          board={""}
+          onClose={() => setIsExportModalOpen(false)}
+          onConfirm={handleExportConfirmed}
         />
       )}
     </div>
