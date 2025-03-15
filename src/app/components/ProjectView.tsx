@@ -37,6 +37,7 @@ export default function ProjectView({
     { id: "in-progress", name: "In Progress", description: "", stories: [] },
     { id: "done", name: "Done", description: "", stories: [] },
   ]);
+
   const [projectList, setProjectList] = useState<Project[]>(projects);
   const [isSaveModalOpen, setIsModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -302,15 +303,6 @@ export default function ProjectView({
                 ))}
               </div>
             ))}
-            <div>
-              <button
-                type="button"
-                onClick={handleExportClicked}
-                className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
-              >
-                Export
-              </button>
-            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
@@ -344,12 +336,7 @@ export default function ProjectView({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         {isAskBarExpanded && (
@@ -388,6 +375,13 @@ export default function ProjectView({
             >
               Reset
             </button>
+            <button
+              type="button"
+              onClick={handleExportClicked}
+              className="ml-4 rounded-2xl bg-green-500 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+            >
+              Export
+            </button>
           </form>
         )}
       </div>
@@ -412,6 +406,7 @@ export default function ProjectView({
         />
       )}
       {isSaveModalOpen && selectedProject && ( <SaveProjectModal project={selectedProject} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirm} />)}
+
       {isExportModalOpen && selectedProject && (
         <ExportModal
           project={selectedProject}
