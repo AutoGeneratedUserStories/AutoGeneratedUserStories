@@ -369,7 +369,7 @@ export default function ProjectView({
 
         <button
           onClick={() => setIsProjectManagementExpanded(!isProjectManagementExpanded)}
-          className="w-full flex justify-end items-center bg-transparent text-gray-700 hover:text-gray-900 transition-colors gap-2"
+          className="w-full flex items-center bg-transparent text-gray-700 hover:text-gray-900 transition-colors gap-2 justify-center"
         >
           {!isProjectManagementExpanded && (
             <span className="text-sm font-medium text-gray-600">
@@ -389,7 +389,7 @@ export default function ProjectView({
           </svg>
         </button>
         {isProjectManagementExpanded && (
-          <div className="bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex flex-col items-end border border-white/20 mt-2">
+          <div className="bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl pr-3 pt-4 pb-4 flex flex-col border border-white/20">
             <button
               onClick={handleSave}
               className="ml-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none mb-2"
