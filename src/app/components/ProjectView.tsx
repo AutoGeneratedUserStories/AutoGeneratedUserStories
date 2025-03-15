@@ -138,6 +138,17 @@ export default function ProjectView({
     setIsModalOpen(true);
   };
 
+  const handleReset = () => {
+    setLists([
+      { id: "todo", name: "To Do", description: "", stories: [] },
+      { id: "in-progress", name: "In Progress", description: "", stories: [] },
+      { id: "done", name: "Done", description: "", stories: [] },
+    ]);
+    handleInputChange({ target: { value: "" } } as React.ChangeEvent<HTMLTextAreaElement>);
+    };
+
+      
+
   const handleConfirm = (updatedProject: Project) => {
     setSelectedProject(updatedProject);
     saveProject(updatedProject);
@@ -413,6 +424,13 @@ export default function ProjectView({
               className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
             >
               Save
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="ml-4 rounded-2xl bg-red-500 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+            >
+              Reset
             </button>
           </form>
         )}
