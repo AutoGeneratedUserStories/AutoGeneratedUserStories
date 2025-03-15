@@ -10,6 +10,7 @@ import ProjectBar from "./ProjectBar";
 import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
 import Toast from "./Toast";
+import ResetModal from "./ResetModal";
 
 interface ProjectViewProps {
   id: string;
@@ -44,8 +45,18 @@ export default function ProjectView({
   } | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [isAskBarExpanded, setIsAskBarExpanded] = useState(true);
-
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  
   const { input, handleInputChange } = useChat();
+
+  const resetLists = () => {
+    setLists([
+      { id: "todo", name: "To Do", description: "", stories: [] },
+      { id: "in-progress", name: "In Progress", description: "", stories: [] },
+      { id: "done", name: "Done", description: "", stories: [] },
+    ]);
+    handleInputChange({ target: { value: "" } } as React.ChangeEvent<HTMLTextAreaElement>);
+  };
 
   // Toast state now holds a message and its visibility status.
   const [toast, setToast] = useState<{ message: string; show: boolean }>({
@@ -138,14 +149,8 @@ export default function ProjectView({
     setIsModalOpen(true);
   };
 
-  const handleReset = () => {
-    setLists([
-      { id: "todo", name: "To Do", description: "", stories: [] },
-      { id: "in-progress", name: "In Progress", description: "", stories: [] },
-      { id: "done", name: "Done", description: "", stories: [] },
-    ]);
-    handleInputChange({ target: { value: "" } } as React.ChangeEvent<HTMLTextAreaElement>);
-    };
+
+
 
       
 
@@ -427,7 +432,7 @@ export default function ProjectView({
             </button>
             <button
               type="button"
-              onClick={handleReset}
+              onClick={() => setIsResetModalOpen(true)}
               className="ml-4 rounded-2xl bg-red-500 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
             >
               Reset
@@ -435,6 +440,20 @@ export default function ProjectView({
           </form>
         )}
       </div>
+      
+      <ResetModal
+              isOpen={isResetModalOpen}
+              onClose={() => setIsResetModalOpen(false)}
+              onSaveAndReset={() => {
+                handleSave(); // Save function
+                resetLists();
+                setIsResetModalOpen(false);
+              }}
+              onDeleteAndReset={() => {
+                resetLists(); // Reset without saving
+                setIsResetModalOpen(false);
+              }}
+            />
 
       {/* {isModalOpen && selectedProject && (
         <SaveProjectModal
