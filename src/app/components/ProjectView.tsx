@@ -48,6 +48,7 @@ export default function ProjectView({
   } | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [isAskBarExpanded, setIsAskBarExpanded] = useState(true);
+  const [isProjectManagementExpanded, setIsProjectManagementExpanded] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const { input, handleInputChange } = useChat();
 
@@ -361,28 +362,53 @@ export default function ProjectView({
             >
               Ask
             </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsResetModalOpen(true)}
-              className="ml-4 rounded-2xl bg-red-500 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={handleExportClicked}
-              className="ml-4 rounded-2xl bg-green-500 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
-            >
-              Export
-            </button>
           </form>
+        )}
+      </div>
+      <div className="fixed bottom-2 right-2 w-[213px] max-w-4xl z-50 flex flex-col gap-4 ">
+
+        <button
+          onClick={() => setIsProjectManagementExpanded(!isProjectManagementExpanded)}
+          className="w-full flex justify-end items-center bg-transparent text-gray-700 hover:text-gray-900 transition-colors gap-2"
+        >
+          {!isProjectManagementExpanded && (
+            <span className="text-sm font-medium text-gray-600">
+              Project Management
+            </span>
+          )}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`h-6 w-6 transform transition-transform ${
+              isProjectManagementExpanded ? "rotate-0" : "rotate-180"
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isProjectManagementExpanded && (
+          <div className="bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex flex-col items-end border border-white/20 mt-2">
+            <button
+              onClick={handleSave}
+              className="ml-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none mb-2"
+            >
+              Save Project
+            </button>
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="ml-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none mb-2"
+            >
+              Export Project
+            </button>
+            <button
+              onClick={() => setIsResetModalOpen(true)}
+              className="ml-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 px-6 py-3 text-white shadow-lg transition-transform hover:scale-105 focus:outline-none"
+            >
+              Reset Project
+            </button>
+          </div>
         )}
       </div>
       <ResetModal
