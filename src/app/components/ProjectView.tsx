@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import StoryCard from "./StoryCard";
 import { readStreamableValue } from "ai/rsc";
-import { generate, reprompt, saveProject } from "../lib/actions";
+import { exportProject, generate, reprompt, saveProject } from "../lib/actions";
 import { Story } from "../models/story";
 import { useChat } from "@ai-sdk/react";
 import ProjectBar from "./ProjectBar";
@@ -11,6 +11,8 @@ import { Project } from "../models/project";
 import SaveProjectModal from "./SaveProjectModal";
 import Toast from "./Toast";
 import ResetModal from "./ResetModal";
+import ExportModal from "./ExportModal";
+import { User } from "../models/user";
 
 interface ProjectViewProps {
   id: string;
@@ -20,13 +22,13 @@ interface ProjectViewProps {
 }
 
 interface ProjectViewComponentProps {
-  username: string;
+  user: User;
   projects: Project[];
   stories: Story[];
 }
 
 export default function ProjectView({
-  username,
+  user,
   projects,
   stories: initialStories,
 }: ProjectViewComponentProps) {
@@ -35,9 +37,9 @@ export default function ProjectView({
     { id: "in-progress", name: "In Progress", description: "", stories: [] },
     { id: "done", name: "Done", description: "", stories: [] },
   ]);
-
   const [projectList, setProjectList] = useState<Project[]>(projects);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [draggedStory, setDraggedStory] = useState<{
     story: Story;
@@ -46,7 +48,6 @@ export default function ProjectView({
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [isAskBarExpanded, setIsAskBarExpanded] = useState(true);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-  
   const { input, handleInputChange } = useChat();
 
   const resetLists = () => {
@@ -58,13 +59,11 @@ export default function ProjectView({
     handleInputChange({ target: { value: "" } } as React.ChangeEvent<HTMLTextAreaElement>);
   };
 
-  // Toast state now holds a message and its visibility status.
   const [toast, setToast] = useState<{ message: string; show: boolean }>({
     message: "",
     show: false,
   });
 
-  // Reusable function to show a toast message.
   const showToastMessage = (message: string, duration = 3000) => {
     setToast({ message, show: true });
     setTimeout(() => {
@@ -83,52 +82,28 @@ export default function ProjectView({
   const onDrop = (targetListId: string, targetIndex?: number) => {
     if (!draggedStory) return;
 
-    if (targetListId === draggedStory.sourceListId) {
-      setLists((prevLists) =>
-        prevLists.map((list) => {
-          if (list.id !== targetListId) return list;
-          const filteredStories = list.stories.filter(
-            (s) => s.name !== draggedStory.story.name
-          );
-          const newStories = [...filteredStories];
+    setLists((prevLists) =>
+      prevLists.map((list) => {
+        if (list.id === draggedStory.sourceListId) {
+          // Remove story from source list.
+          return {
+            ...list,
+            stories: list.stories.filter((s) => s.name !== draggedStory.story.name),
+          };
+        }
+        if (list.id === targetListId) {
+          // Insert into target list.
+          const newStories = [...list.stories];
           if (typeof targetIndex === "number") {
-            newStories.splice(targetIndex, 0, {
-              ...draggedStory.story,
-              category: targetListId,
-            });
+            newStories.splice(targetIndex, 0, { ...draggedStory.story, category: targetListId });
           } else {
             newStories.push({ ...draggedStory.story, category: targetListId });
           }
           return { ...list, stories: newStories };
-        })
-      );
-    } else {
-      setLists((prevLists) =>
-        prevLists.map((list) => {
-          if (list.id === draggedStory.sourceListId) {
-            return {
-              ...list,
-              stories: list.stories.filter(
-                (s) => s.name !== draggedStory.story.name
-              ),
-            };
-          }
-          if (list.id === targetListId) {
-            const newStories = [...list.stories];
-            if (typeof targetIndex === "number") {
-              newStories.splice(targetIndex, 0, {
-                ...draggedStory.story,
-                category: targetListId,
-              });
-            } else {
-              newStories.push({ ...draggedStory.story, category: targetListId });
-            }
-            return { ...list, stories: newStories };
-          }
-          return list;
-        })
-      );
-    }
+        }
+        return list;
+      })
+    );
     setDraggedStory(null);
   };
 
@@ -149,11 +124,6 @@ export default function ProjectView({
     setIsModalOpen(true);
   };
 
-
-
-
-      
-
   const handleConfirm = (updatedProject: Project) => {
     setSelectedProject(updatedProject);
     saveProject(updatedProject);
@@ -166,9 +136,7 @@ export default function ProjectView({
     setLists((prevLists) =>
       prevLists.map((list) => ({
         ...list,
-        stories: list.stories.filter(
-          (story) => story.name !== storyToDelete.name
-        ),
+        stories: list.stories.filter((story) => story.name !== storyToDelete.name),
       }))
     );
   };
@@ -178,14 +146,11 @@ export default function ProjectView({
     setLists((prevLists) =>
       prevLists.map((list) => ({
         ...list,
-        stories: project.stories.filter(
-          (story) => story.category === list.id
-        ),
+        stories: project.stories.filter((story) => story.category === list.id),
       }))
     );
   };
 
-  // Function to add a new user story to the "To Do" list.
   const handleAddStory = () => {
     const newStory: Story = {
       name: "New Story",
@@ -195,9 +160,7 @@ export default function ProjectView({
     };
     setLists((prevLists) =>
       prevLists.map((list) =>
-        list.id === "todo"
-          ? { ...list, stories: [...list.stories, newStory] }
-          : list
+        list.id === "todo" ? { ...list, stories: [...list.stories, newStory] } : list
       )
     );
   };
@@ -221,9 +184,7 @@ export default function ProjectView({
             }));
             setLists((prevLists) =>
               prevLists.map((list) =>
-                list.id === "todo"
-                  ? { ...list, stories: newStories }
-                  : list
+                list.id === "todo" ? { ...list, stories: newStories } : list
               )
             );
           }
@@ -238,9 +199,8 @@ export default function ProjectView({
           } as Project;
           setSelectedProject(currProject);
         }
-        // Notify that reprompting has started.
         showToastMessage("Reprompting...", 3000);
-        const project = (await reprompt(input, currProject!)) as Project;
+        const project = (await reprompt(input, currProject)) as Project;
         setSelectedProject(project);
 
         const flattenedStories: Story[] = project.stories.map((story) => ({
@@ -255,12 +215,9 @@ export default function ProjectView({
         setLists((prevLists) =>
           prevLists.map((list) => ({
             ...list,
-            stories: flattenedStories.filter(
-              (story) => story.category === list.id
-            ),
+            stories: flattenedStories.filter((story) => story.category === list.id),
           }))
         );
-        // Notify that reprompting is complete.
         showToastMessage("Reprompt complete!", 3000);
       }
     } catch (error) {
@@ -276,27 +233,30 @@ export default function ProjectView({
     [handleAsk]
   );
 
-  // Combine all stories for grid view
+  // Combine all stories for grid view.
   const allStories: Story[] = lists.reduce(
     (acc, list) => [...acc, ...list.stories],
     [] as Story[]
   );
 
+  const handleExportClicked = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleExportConfirmed = () => {
+    exportProject(selectedProject!);
+    alert("Project has been exported to Trello!");
+    setIsExportModalOpen(false);
+  };
+
   return (
     <div className="grid grid-cols-[1fr_10fr] gap-4">
       <div className="h-full pt-4">
-        <ProjectBar
-          username={username}
-          projects={projectList}
-          onSelectProject={handleSelectProject}
-        />
+        <ProjectBar user={user} projects={projectList} onSelectProject={handleSelectProject} />
       </div>
       <div className="w-full h-full overflow-auto pb-24">
         <div className="ps-4 pt-4 flex items-center">
-          <h2 className="mr-4">
-            {selectedProject?.name ?? "Unsaved Project"}
-          </h2>
-          {/* + Button to add a new user story */}
+          <h2 className="mr-4">{selectedProject?.name ?? "Unsaved Project"}</h2>
           <button
             onClick={handleAddStory}
             className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
@@ -304,22 +264,14 @@ export default function ProjectView({
             +
           </button>
         </div>
-
-        {/* Toggle Button */}
         <div className="p-4 flex justify-end">
           <button
-            onClick={() =>
-              setViewMode(viewMode === "list" ? "grid" : "list")
-            }
+            onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
             className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
           >
-            {viewMode === "list"
-              ? "Return to Grid View"
-              : "Track Project Progress"}
+            {viewMode === "list" ? "Return to Grid View" : "Track Project Progress"}
           </button>
         </div>
-
-        {/* Conditional rendering based on view mode */}
         {viewMode === "list" ? (
           <div className="grid grid-cols-3 gap-4 p-4">
             {lists.map((list) => (
@@ -345,43 +297,44 @@ export default function ProjectView({
                       onDrop(list.id, index);
                     }}
                   >
-                    <StoryCard story={story} onDelete={handleDeleteStory}/>
+                    <StoryCard story={story} onDelete={handleDeleteStory} />
                   </div>
                 ))}
               </div>
             ))}
+            <div>
+              <button
+                type="button"
+                onClick={handleExportClicked}
+                className="ml-2 bg-green-600 px-6 py-4 text-white shadow transition-colors hover:bg-green-700 rounded"
+              >
+                Export
+              </button>
+            </div>
           </div>
         ) : (
-          // Grid view
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4"> 
-          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
             {allStories.map((story, index) => (
               <div
                 key={`${story.name}-${index}`}
                 className="p-6 rounded-lg shadow-md bg-gray-50 hover:shadow-lg transition-shadow hover:scale-105 transform duration-200"
               >
-                <StoryCard story={story} onDelete={handleDeleteStory}/>
+                <StoryCard story={story} onDelete={handleDeleteStory} />
               </div>
             ))}
           </div>
         )}
       </div>
-
-      {/* Floating Ask Bar */}
       <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2 w-full max-w-4xl z-50">
-        {/* Toggle Button (Arrow and Label) */}
         <button
           onClick={() => setIsAskBarExpanded(!isAskBarExpanded)}
           className="w-full flex justify-center items-center bg-transparent text-gray-700 hover:text-gray-900 transition-colors gap-2"
         >
-          {/* Label (Visible only when collapsed) */}
           {!isAskBarExpanded && (
             <span className="text-sm font-medium text-gray-600">
               Edit using AI Prompts
             </span>
           )}
-
-          {/* Arrow Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={`h-6 w-6 transform transition-transform ${
@@ -399,19 +352,17 @@ export default function ProjectView({
             />
           </svg>
         </button>
-
-        {/* Ask Bar Form */}
         {isAskBarExpanded && (
           <form
             onSubmit={handleSubmit}
             className="bg-white/50 backdrop-blur-md shadow-2xl rounded-2xl px-6 pt-2 pb-4 flex items-end border border-white/20 mt-2"
           >
             <textarea
-              className="w-full bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2 ps"
+              className="w-full bg-transparent outline-none placeholder-gray-600 text-lg px-4 py-2"
               style={{ height: "auto", resize: "none", overflow: "hidden" }}
               value={input}
               onChange={(e) => {
-                e.target.style.height = "auto"; // These two lines scale the ask bar to how much text is input
+                e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
                 handleInputChange(e);
               }}
@@ -440,35 +391,33 @@ export default function ProjectView({
           </form>
         )}
       </div>
-      
       <ResetModal
-              isOpen={isResetModalOpen}
-              onClose={() => setIsResetModalOpen(false)}
-              onSaveAndReset={() => {
-                handleSave(); // Save function
-                resetLists();
-                setIsResetModalOpen(false);
-              }}
-              onDeleteAndReset={() => {
-                resetLists(); // Reset without saving
-                setIsResetModalOpen(false);
-              }}
-            />
-
-      {/* {isModalOpen && selectedProject && (
-        <SaveProjectModal
-          project={selectedProject}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={handleConfirm}
-        />
-      )} */}
-
-      {/* Toast Notification */}
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onSaveAndReset={() => {
+          handleSave();
+          resetLists();
+          setIsResetModalOpen(false);
+        }}
+        onDeleteAndReset={() => {
+          resetLists();
+          setIsResetModalOpen(false);
+        }}
+      />
       {toast.show && (
         <Toast
           message={toast.message}
           duration={3000}
           onClose={() => setToast({ message: "", show: false })}
+        />
+      )}
+      {isSaveModalOpen && selectedProject && ( <SaveProjectModal project={selectedProject} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirm} />)}
+      {isExportModalOpen && selectedProject && (
+        <ExportModal
+          project={selectedProject}
+          board={""}
+          onClose={() => setIsExportModalOpen(false)}
+          onConfirm={handleExportConfirmed}
         />
       )}
     </div>

@@ -42,6 +42,15 @@ class User {
 
   @prop({ required: false, type: () => [Project], _id: false, default: [] })
   projects?: Project[];
+
+  @prop({ required: false, unique: true, default: ""})
+  geminiKey?: string;
+
+  @prop({ required: false, unique: true, default: ""})
+  trelloApiKey?: string;
+
+  @prop({ required: false, unique: true, default: ""})
+  trelloApiToken?: string;
   
   _id: mongoose.Types.ObjectId | string;
   id: string;
