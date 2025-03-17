@@ -159,6 +159,8 @@ export default function ProjectView({
       description: "",
       acceptanceCriteria: [],
       category: "todo",
+      id: "",
+      _id: "",
     };
     setLists((prevLists) =>
       prevLists.map((list) =>
