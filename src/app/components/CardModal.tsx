@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { Story } from "../models/story";
 
@@ -9,6 +9,29 @@ interface CardModalProps {
 }
 
 export default function CardModal({ story, onClose, onSave }: CardModalProps) {
+  const [editedName, setEditedName] = useState(story.name);
+  const [editedDescription, setEditedDescription] = useState(story.description);
+  const [editedAcceptanceCriteria, setEditedAcceptanceCriteria] = useState<string[]>(story.acceptanceCriteria || []);
+
+  const handleCriteriaUpdate = (index: number, updatedCriteria: string) => {
+    const newCriteria = [...editedAcceptanceCriteria];
+    newCriteria[index] = updatedCriteria;
+    setEditedAcceptanceCriteria(newCriteria);
+  };
+
+  console.log("Story received:", story);
+  console.log("Acceptance criteria:", editedAcceptanceCriteria);
+
+  const handleSave = () => {
+    const updatedStory: Story = {
+      ...story,
+      name: editedName,
+      description: editedDescription,
+      acceptanceCriteria: editedAcceptanceCriteria,
+    };
+    onSave(updatedStory);
+  };
+  
   const modalContent = (
     <div
       className="modal fade show"
@@ -38,9 +61,8 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                   type="text"
                   className="form-control"
                   id="storyName"
-                  value={story.name}
-                  onChange={(e) => {}}
-                />
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}                />
               </div>
               <div className="form-group pb-4">
                 <label htmlFor="storyDescription">Description</label>
@@ -48,15 +70,28 @@ export default function CardModal({ story, onClose, onSave }: CardModalProps) {
                   className="form-control"
                   id="storyDescription"
                   rows={3}
-                  value={story.description}
-                  onChange={(e) => {}}
-                ></textarea>
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                ></textarea>             
+                <div className="pb-2">
+                {editedAcceptanceCriteria.map((criteria, index) => (
+                  <div key={index}>
+                    <label className="pt-2" htmlFor={`acceptanceCriteria-${index}`}>Acceptance Criteria {index + 1}</label>
+                    <textarea
+                      className="form-control"
+                      id={`acceptanceCriteria-${index}`}
+                      rows={3}
+                      value={criteria}
+                      onChange={(e) => handleCriteriaUpdate(index, e.target.value)}
+                    ></textarea>
+                  </div>
+                ))}
+                </div>
               </div>
-              {/* Additional fields for acceptance criteria */}
             </form>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-primary" onClick={() => onSave(story)}>
+            <button type="button" className="btn btn-primary" onClick={handleSave}>
               Save changes
             </button>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
