@@ -83,7 +83,18 @@ export default function ProjectView({
 
   const onDrop = (targetListId: string, targetIndex?: number) => {
     if (!draggedStory) return;
-
+  
+    // Check if dropped onto the same position; if yes, return early
+    if (
+      draggedStory.sourceListId === targetListId &&
+      lists
+        .find((list) => list.id === targetListId)
+        ?.stories.findIndex((s) => s.name === draggedStory.story.name) === targetIndex
+    ) {
+      setDraggedStory(null);
+      return;
+    }
+  
     setLists((prevLists) =>
       prevLists.map((list) => {
         if (list.id === draggedStory.sourceListId) {
@@ -93,6 +104,8 @@ export default function ProjectView({
             stories: list.stories.filter((s) => s.name !== draggedStory.story.name),
           };
         }
+        return list;
+      }).map((list) => {
         if (list.id === targetListId) {
           // Insert into target list.
           const newStories = [...list.stories];
@@ -106,8 +119,10 @@ export default function ProjectView({
         return list;
       })
     );
+  
     setDraggedStory(null);
   };
+  
 
   const handleSave = async () => {
     const allStories: Story[] = lists.reduce(
