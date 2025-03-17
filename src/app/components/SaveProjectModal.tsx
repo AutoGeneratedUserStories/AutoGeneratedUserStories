@@ -71,9 +71,9 @@ export default function SaveProjectModal({ project, onClose, onConfirm }: CardMo
             >
               Confirm Save
             </button>
-            {/* <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
               Close
-            </button> */}
+            </button>
           </div>
         </div>
       </div>

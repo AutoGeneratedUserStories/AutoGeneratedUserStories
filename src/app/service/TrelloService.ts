@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from "axios";
-import { Number } from "mongoose";
 
 const TRELLO_API_BASE_URL = "https://api.trello.com/1";
 
@@ -33,7 +32,7 @@ class TrelloService {
     }
   }
 
-  public async createList(listName: string, idBoard: Number) {
+  public async createList(listName: string, idBoard: number) {
     try {
       const response = await this.trelloAxios.post("/lists/", {
         idBoard: idBoard,
