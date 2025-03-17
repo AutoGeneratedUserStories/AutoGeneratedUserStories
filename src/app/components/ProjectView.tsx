@@ -243,10 +243,6 @@ export default function ProjectView({
     [] as Story[]
   );
 
-  const handleExportClicked = () => {
-    setIsExportModalOpen(true);
-  };
-
   const handleExportConfirmed = () => {
     exportProject(selectedProject!);
     alert("Project has been exported to Trello!");
